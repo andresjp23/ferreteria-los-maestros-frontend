@@ -5,6 +5,7 @@ import BenefitsSection from '../components/home/BenefitsSection'
 export default function Home() {
   return (
     <>
+      <title>Inicio | Ferretería Los Maestros</title>
       <Hero />
       <CategoriesSection />
       <BenefitsSection />

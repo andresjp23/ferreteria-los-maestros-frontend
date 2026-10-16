@@ -1,8 +1,16 @@
+import { Link } from "react-router"
 import { BrickWall, Hammer, Wrench, ArrowRight } from "lucide-react"
 import CategoryCard from "../ui/CategoryCard"
 import Materiales from "../../assets/categories/materiales-image.png"
 import Martillo from "../../assets/categories/martillos.png"
 import Gasfiteria from "../../assets/categories/gasfiteria.png"
+
+// slug = el mismo valor del campo "categoria" en los productos
+const categories = [
+    { title: "Materiales de construcción", slug: "materiales-construccion", icon: BrickWall, image: Materiales },
+    { title: "Herramientas", slug: "herramientas", icon: Hammer, image: Martillo },
+    { title: "Gasfitería", slug: "gasfiteria", icon: Wrench, image: Gasfiteria },
+]
 
 export default function CategoriesSection() {
     return (
@@ -16,32 +24,26 @@ export default function CategoriesSection() {
                     </h2>
                 </div>
 
-                <a
-                    href="/categorias"
+                <Link
+                    to="/productos"
                     className="group inline-flex items-center gap-2 text-sm font-medium text-primary"
                 >
                     Ver todas
                     <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
-                </a>
+                </Link>
             </div>
 
-            {/* Tarjetas */}
+            {/* Tarjetas: cada una lleva a Productos con su categoría */}
             <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-                <CategoryCard
-                    title="Materiales de construcción"
-                    icon={<BrickWall />}
-                    image={Materiales}
-                />
-                <CategoryCard
-                    title="Herramientas"
-                    icon={<Hammer />}
-                    image={Martillo}
-                />
-                <CategoryCard
-                    title="Gasfitería y electricidad"
-                    icon={<Wrench />}
-                    image={Gasfiteria}
-                />
+                {categories.map(({ title, slug, icon: Icon, image }) => (
+                    <Link
+                        key={slug}
+                        to={`/productos?categoria=${slug}`}
+                        className="block h-full rounded-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                    >
+                        <CategoryCard title={title} icon={<Icon />} image={image} />
+                    </Link>
+                ))}
             </div>
         </section>
     )

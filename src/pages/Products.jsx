@@ -5,6 +5,9 @@ import FiltersSidebar from "../components/products/FiltersSidebar"
 import { useState, useEffect } from "react"
 import { useSearchParams } from "react-router"
 import { ChevronDown } from "lucide-react"
+import {useCart} from "../context/CartContext"
+import { categories } from "../mocks/categories"
+
 
 
 // Pasa a minúsculas y quita tildes y la ñ: "Cañería" -> "caneria"
@@ -13,6 +16,12 @@ const normalize = (text) =>
 
 export default function Products() {
     const [visibleCount, setVisibleCount] = useState(16) // estado para limiitar la cantidad de productos visibles
+
+    // Parámetros de la URL (/productos?q=taladro&categoria=gasfiteria)
+    const [searchParams] = useSearchParams()
+    const query = searchParams.get("q") ?? ""
+    const categoryFromUrl = searchParams.get("categoria") // null si no viene
+
     // Estado para los filtros
     const [selectedCategories, setSelectedCategories] = useState([])
     // Estado para las marcas
@@ -24,14 +33,21 @@ export default function Products() {
     const [maxPrice, setMaxPrice] = useState("")
     // Estado para el orden
     const [sortBy, setSortBy] = useState("nombre-asc")
-    // Búsqueda que viene de la URL (/productos?q=taladro)
-    const [searchParams] = useSearchParams()
-    const query = searchParams.get("q") ?? ""
+
+    // Trae del contexto la función para agregar al carrito
+    const { addToCart } = useCart()
+
 
     // Cuando cambia la búsqueda, vuelve a mostrar los primeros 16
     useEffect(() => {
         setVisibleCount(16)
     }, [query])
+
+    // Si cambia la categoría de la URL (botón atrás/adelante, link nuevo), actualiza el filtro
+    useEffect(() => {
+        setSelectedCategories(categoryFromUrl ? [categoryFromUrl] : [])
+        setVisibleCount(16)
+    }, [categoryFromUrl])
 
 
     // Guarda el orden seleccionado y vuelve a mostrar los 16
@@ -115,6 +131,7 @@ export default function Products() {
 
     return (
         <>
+            <title>Productos | Ferretería Los Maestros</title>
             <Banner />
 
             {/* Zona del catálogo */}
@@ -168,15 +185,18 @@ export default function Products() {
 
                         {/* Grilla de productos */}
                         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-                            {visibleProducts.map(product =>
-                                <ProductCard
-                                    key={product.id}
-                                    image={product.image}
-                                    nombre={product.nombre}
-                                    precio={product.precio}
-                                    unidad={product.unidad}
-                                    stock={product.stock}
-                                />
+                        {visibleProducts.map(product =>
+                            <ProductCard
+                                key={product.id}
+                                id={product.id}
+                                image={product.image}
+                                categoria={categories.find(c => c.id === product.categoria)?.nombre}
+                                nombre={product.nombre}
+                                precio={product.precio}
+                                unidad={product.unidad}
+                                stock={product.stock}
+                                onAddToCart={()=> {addToCart(product)}}
+                            />
                             )}
 
                             {/* Boton mostrar mas */}

@@ -3,6 +3,7 @@ import NavSearchBar from "../ui/NavSearchBar";
 import Logo from "../../assets/logo.png"
 import { User, ShoppingCart } from "lucide-react"
 import { Link, NavLink } from 'react-router';
+import { useCart } from "../../context/CartContext";
 
 // Clases de los enlaces de escritorio: subrayado naranja si la ruta está activa
 const desktopLinkClass = ({ isActive }) =>
@@ -26,6 +27,12 @@ const navLinks = [
 export default function Navbar() {
     // Estado para abrir/cerrar el menú en móviles
     const [isOpen, setIsOpen] = useState(false);
+    // carrito desde el contexto
+    const {cartItems} = useCart();
+
+    // Suma las cantidades de todos los productos: es el número que se muestra en el contador.
+    // reduce va acumulando un valor: "total" parte en 0 y en cada vuelta se le suma la cantidad de un producto.
+    const totalUnits = cartItems.reduce((total, item) => total + item.cantidad, 0);
 
     return (
         // Header fijo arriba al hacer scroll (desktop y móvil)
@@ -80,12 +87,18 @@ export default function Navbar() {
                     </Link>
                     <Link
                         to="/carrito"
-                        aria-label="Carrito"
-                        className="text-white hover:text-primary transition-colors"
+                        aria-label={`Carrito (${totalUnits})`}
+                        className="relative text-white hover:text-primary transition-colors"
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="24" height="24">
                             <path fill="currentColor" d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607L1.61 2H.5a.5.5 0 0 1-.5-.5M3.102 4l1.313 7h8.17l1.313-7zM5 12a2 2 0 1 0 0 4a2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4a2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 2a1 1 0 0 1 0-2m7 0a1 1 0 1 1 0 2a1 1 0 0 1 0-2"/>
                         </svg>
+                        {/* Contador: círculo naranja con el número en blanco, sobre la esquina superior derecha del ícono */}
+                        <span className="absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-xs font-bold text-white">
+                            {/* Si hay más de 99 unidades, muestra "99+" para que no se agrande */}
+                            {totalUnits > 99 ? "99+" : totalUnits}
+                        </span>
+
                     </Link>
                 </div>
 
@@ -142,7 +155,7 @@ export default function Navbar() {
                                 className="flex items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 font-semibold text-white hover:opacity-90 transition"
                             >
                                 <ShoppingCart className="size-5" />
-                                Carrito
+                                Carrito ({totalUnits})
                             </Link>
 
                             {/* Secundario: iniciar sesión (outline) */}

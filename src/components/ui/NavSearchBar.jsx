@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
 import { useNavigate, useSearchParams } from "react-router"
+import { Search } from "lucide-react"
 
 export default function NavSearchBar() {
   const navigate = useNavigate()
@@ -27,27 +28,17 @@ export default function NavSearchBar() {
     <form
       role="search"
       onSubmit={handleSubmit}
-      className="flex items-center w-full max-w-xs bg-gray-100 rounded-lg px-3 py-1.5 border border-transparent focus-within:bg-white focus-within:border-gray-300 focus-within:shadow-sm transition-all"
+      className="flex w-full max-w-xl items-center gap-3 rounded-xl border border-white/5 bg-white/10 px-4 py-3 transition focus-within:border-primary/60 focus-within:bg-white/15"
     >
-      {/* Icono de Lupa */}
-      <svg
-        className="w-4 h-4 text-gray-400 mr-2 shrink-0"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-      </svg>
+      <Search className="size-5 shrink-0 text-white" strokeWidth={1.75} />
 
-      {/* Campo de Entrada */}
       <input
         type="text"
         placeholder="Buscar productos..."
         aria-label="Buscar productos"
         value={text}
         onChange={(event) => setText(event.target.value)}
-        className="w-full bg-transparent focus:outline-none text-sm text-gray-700"
+        className="w-full bg-transparent text-sm text-white placeholder:text-slate-300 focus:outline-none"
       />
     </form>
   )
