@@ -13,6 +13,11 @@ import Dashboard from './pages/admin/Dashboard'
 import AdminProducts from './pages/admin/Products'
 import AdminUsers from './pages/admin/Users'
 
+import SellerLayout from "./components/layout/SellerLayout"
+import SellerOrders from "./pages/seller/Orders"
+
+
+
 function App() {
   return (
     <Routes>
@@ -27,6 +32,14 @@ function App() {
               <Route path='usuarios' element={<AdminUsers />} />
           </Route>
       </Route>
+      
+      {/* Panel del vendedor: acceso exclusivo para vendedores */}
+      <Route element={<ProtectedRoute allowedRoles={["vendedor"]} />}>
+          <Route path="/vendedor" element={<SellerLayout />}>
+              <Route index element={<SellerOrders />} />
+          </Route>
+      </Route>
+
       {/* Rutas publicas */}
       <Route element={<Layout />}>
         <Route path="/" element={<Home />} />
