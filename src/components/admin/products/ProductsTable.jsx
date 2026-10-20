@@ -6,8 +6,62 @@ import StatusBadge from "../StatusBadge"
 
 export default function ProductsTable({ products }) {
     return (
-        // Si no cabe (móvil), la tabla se desplaza hacia el costado dentro de su tarjeta
-        <div className="overflow-x-auto">
+        <>
+            <ul className="grid gap-3 xl:hidden" aria-label="Productos">
+                {products.map((product) => {
+                    const categoryName = categories.find((category) => category.id === product.categoria)?.nombre
+
+                    return (
+                        <li key={product.id} className="rounded-lg border border-gray-200 p-4">
+                            <div className="flex items-start gap-3">
+                                <div className="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-gray-200 bg-white p-1">
+                                    {product.image && (
+                                        <img src={product.image} alt="" className="size-full object-contain" />
+                                    )}
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                    <p className="font-semibold text-secondary">{product.nombre}</p>
+                                    <p className="mt-1 text-sm text-gray-500">
+                                        {product.marca} · {product.subcategoria}
+                                    </p>
+                                    <p className="mt-1 text-sm text-gray-600">{categoryName}</p>
+                                </div>
+                            </div>
+
+                            <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+                                <span className="text-lg font-semibold text-secondary">{formatPrice(product.precio)}</span>
+                                <StatusBadge status={getStockStatus(product.stock)} />
+                            </div>
+
+                            <dl className="mt-4 border-t border-gray-100 pt-3">
+                                <dt className="text-xs font-medium text-gray-500">Stock</dt>
+                                <dd className="mt-1 text-sm text-gray-700">{product.stock} {product.unidad}</dd>
+                            </dl>
+
+                            <div className="mt-4 flex gap-2 border-t border-gray-100 pt-3">
+                                <button
+                                    type="button"
+                                    aria-label={`Editar ${product.nombre}`}
+                                    className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-lg border border-gray-200 px-3 text-sm font-medium text-gray-600 transition-colors hover:text-primary"
+                                >
+                                    <Pencil className="size-4" />
+                                    Editar
+                                </button>
+                                <button
+                                    type="button"
+                                    aria-label={`Eliminar ${product.nombre}`}
+                                    className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-lg border border-gray-200 px-3 text-sm font-medium text-gray-600 transition-colors hover:text-red-500"
+                                >
+                                    <Trash2 className="size-4" />
+                                    Eliminar
+                                </button>
+                            </div>
+                        </li>
+                    )
+                })}
+            </ul>
+
+            <div className="hidden overflow-x-auto xl:block">
             <table className="w-full min-w-3xl text-left text-sm">
                 <thead className="bg-slate-50 text-gray-500">
                     <tr>
@@ -77,6 +131,7 @@ export default function ProductsTable({ products }) {
                     })}
                 </tbody>
             </table>
-        </div>
+            </div>
+        </>
     )
 }

@@ -2,6 +2,7 @@ import Banner from "../components/products/Banner"
 import ProductCard from "../components/products/ProductCard"
 import { products } from "../mocks/products"
 import FiltersSidebar from "../components/products/FiltersSidebar"
+import NavSearchBar from "../components/ui/NavSearchBar"
 import { useState, useEffect } from "react"
 import { useSearchParams } from "react-router"
 import { ChevronDown } from "lucide-react"
@@ -18,7 +19,7 @@ export default function Products() {
     const [visibleCount, setVisibleCount] = useState(16) // estado para limiitar la cantidad de productos visibles
 
     // Parámetros de la URL (/productos?q=taladro&categoria=gasfiteria)
-    const [searchParams] = useSearchParams()
+    const [searchParams, setSearchParams] = useSearchParams()
     const query = searchParams.get("q") ?? ""
     const categoryFromUrl = searchParams.get("categoria") // null si no viene
 
@@ -104,6 +105,22 @@ export default function Products() {
         setVisibleCount(prevCount => prevCount + 16)
     }
 
+    const handleClearFilters = () => {
+        setSelectedCategories([])
+        setSelectedBrands([])
+        setOnlyInStock(false)
+        setMinPrice("")
+        setMaxPrice("")
+        setSortBy("nombre-asc")
+        setVisibleCount(16)
+
+        if (categoryFromUrl) {
+            const nextSearchParams = new URLSearchParams(searchParams)
+            nextSearchParams.delete("categoria")
+            setSearchParams(nextSearchParams)
+        }
+    }
+
     const normalizedQuery = normalize(query.trim())
 
     // Lista de productos filtrados (si no hay ninguna categoria o marca marcada, pasan todos los productos)
@@ -139,7 +156,10 @@ export default function Products() {
                 
                 {/* Contenedor principal Grid: 2 columnas en pantallas grandes (xl) */}
                 <div className="xl:grid xl:grid-cols-[18rem_minmax(0,1fr)] xl:items-start xl:gap-8">
-                    
+                    <div className="mb-4 md:hidden">
+                        <NavSearchBar variant="catalog" />
+                    </div>
+
                     {/* Columna Izquierda: Filtros */}
                     <FiltersSidebar
                         selectedCategories={selectedCategories}
@@ -151,7 +171,8 @@ export default function Products() {
                         minPrice={minPrice}
                         onMinPriceChange={handleMinPriceChange}
                         maxPrice={maxPrice}
-                        onMaxPriceChange={handleMaxPriceChange}         
+                        onMaxPriceChange={handleMaxPriceChange}
+                        onClear={handleClearFilters}
                     />
 
                     {/* Columna Derecha: cabecera + grilla */}

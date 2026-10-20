@@ -1,7 +1,6 @@
-export default function CategoryCard({ title, icon, image, href = "/productos" }) {
+export default function CategoryCard({ title, icon, image }) {
     return (
-        <a
-            href={href}
+        <article
             className="group relative flex min-h-48 overflow-hidden rounded-xl bg-secondary"
         >
             {/* Imagen de fondo (parte derecha) */}
@@ -40,6 +39,6 @@ export default function CategoryCard({ title, icon, image, href = "/productos" }
                     </span>
                 </div>
             </div>
-        </a>
+        </article>
     )
 }

@@ -1,9 +1,10 @@
+import { useState } from "react"
 import { SlidersHorizontal, ChevronDown, RefreshCw } from "lucide-react"
 import { categories } from "../../mocks/categories"
 import { brands } from "../../mocks/brands"
 
 // Grupo colapsable: título + flecha + contenido
-function FilterGroup({ title, defaultOpen = true, children }) {
+function FilterGroup({ title, defaultOpen = false, children }) {
     return (
         <details
             open={defaultOpen}
@@ -24,12 +25,33 @@ export default function FiltersSidebar({
     selectedBrands, onBrandChange,
     onlyInStock, onStockChange,
     minPrice, onMinPriceChange,
-    maxPrice, onMaxPriceChange
+    maxPrice, onMaxPriceChange,
+    onClear
     }) {
+    const [isOpen, setIsOpen] = useState(false)
+
     return (
-        <aside className="hidden rounded-xl border border-gray-200 bg-white shadow-sm xl:sticky xl:top-28 xl:block xl:max-h-[calc(100vh-8rem)] xl:overflow-y-auto">
+        <aside className="mb-6 xl:mb-0 xl:sticky xl:top-28 xl:max-h-[calc(100vh-8rem)] xl:overflow-y-auto">
+            <button
+                type="button"
+                aria-expanded={isOpen}
+                aria-controls="product-filters"
+                onClick={() => setIsOpen((open) => !open)}
+                className="flex w-full items-center justify-between rounded-xl border border-gray-200 bg-white px-5 py-4 text-left shadow-sm xl:hidden"
+            >
+                <span className="flex items-center gap-3 text-lg font-bold text-secondary">
+                    <SlidersHorizontal className="size-5 text-primary" />
+                    Filtros
+                </span>
+                <ChevronDown className={`size-5 transition-transform ${isOpen ? "rotate-180" : ""}`} />
+            </button>
+
+            <div
+                id="product-filters"
+                className={`${isOpen ? "block" : "hidden"} mt-3 rounded-xl border border-gray-200 bg-white shadow-sm xl:mt-0 xl:block`}
+            >
             {/* Encabezado */}
-            <div className="flex items-center gap-3 border-b border-gray-200 px-5 py-4">
+            <div className="hidden items-center gap-3 border-b border-gray-200 px-5 py-4 xl:flex">
                 <SlidersHorizontal className="size-5 text-primary" />
                 <h2 className="text-lg font-bold text-secondary">Filtros</h2>
             </div>
@@ -122,11 +144,13 @@ export default function FiltersSidebar({
             <div className="px-5 pb-5 pt-2">
                 <button
                     type="button"
+                    onClick={onClear}
                     className="flex w-full items-center justify-center gap-2 rounded-lg border border-primary px-4 py-2.5 text-sm font-semibold text-primary transition hover:bg-primary hover:text-white"
                 >
                     <RefreshCw className="size-4" />
                     Limpiar filtros
                 </button>
+            </div>
             </div>
         </aside>
     )

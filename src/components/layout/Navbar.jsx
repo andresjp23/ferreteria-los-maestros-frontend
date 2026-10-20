@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import NavSearchBar from "../ui/NavSearchBar";
 import Logo from "../../assets/logo.png"
-import { User, ShoppingCart } from "lucide-react"
+import { LogOut, User, ShoppingCart } from "lucide-react"
 import { Link, NavLink } from 'react-router';
 import { useCart } from "../../context/CartContext";
+import { useAuth } from "../../context/AuthContext";
 
 // Clases de los enlaces de escritorio: subrayado naranja si la ruta está activa
 const desktopLinkClass = ({ isActive }) =>
@@ -29,6 +30,13 @@ export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
     // carrito desde el contexto
     const {cartItems} = useCart();
+    const { user, logout } = useAuth();
+    const isClient = user?.rol === "cliente";
+
+    const handleLogout = () => {
+        logout();
+        setIsOpen(false);
+    };
 
     // Suma las cantidades de todos los productos: es el número que se muestra en el contador.
     // reduce va acumulando un valor: "total" parte en 0 y en cada vuelta se le suma la cantidad de un producto.
@@ -76,15 +84,24 @@ export default function Navbar() {
 
                 {/* --- SECCIÓN DERECHA: ACCIONES --- */}
                 <div className="hidden md:flex items-center gap-6 justify-end">
-                    <Link
-                        to="/login"
-                        className="flex gap-2 items-center text-white hover:text-primary transition-colors"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-                            <path fill="currentColor" d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5s-5 2.24-5 5s2.24 5 5 5m0-8c1.65 0 3 1.35 3 3s-1.35 3-3 3s-3-1.35-3-3s1.35-3 3-3M4 22h16c.55 0 1-.45 1-1v-1c0-3.86-3.14-7-7-7h-4c-3.86 0-7 3.14-7 7v1c0 .55.45 1 1 1m6-7h4c2.76 0 5 2.24 5 5H5c0-2.76 2.24-5 5-5"/>
-                        </svg>
-                        Iniciar Sesión
-                    </Link>
+                    {isClient ? (
+                        <button
+                            type="button"
+                            onClick={handleLogout}
+                            className="flex items-center gap-2 text-white transition-colors hover:text-primary"
+                        >
+                            <LogOut className="size-6" />
+                            Cerrar sesión
+                        </button>
+                    ) : (
+                        <Link
+                            to="/login"
+                            className="flex gap-2 items-center text-white hover:text-primary transition-colors"
+                        >
+                            <User className="size-6" />
+                            Iniciar Sesión
+                        </Link>
+                    )}
                     <Link
                         to="/carrito"
                         aria-label={`Carrito (${totalUnits})`}
@@ -159,14 +176,25 @@ export default function Navbar() {
                             </Link>
 
                             {/* Secundario: iniciar sesión (outline) */}
-                            <Link
-                                to="/login"
-                                onClick={() => setIsOpen(false)}
-                                className="flex items-center justify-center gap-2 rounded-lg border border-primary px-6 py-3 font-semibold text-primary hover:bg-primary hover:text-white transition"
-                            >
-                                <User className="size-5" />
-                                Iniciar sesión
-                            </Link>
+                            {isClient ? (
+                                <button
+                                    type="button"
+                                    onClick={handleLogout}
+                                    className="flex items-center justify-center gap-2 rounded-lg border border-primary px-6 py-3 font-semibold text-primary transition hover:bg-primary hover:text-white"
+                                >
+                                    <LogOut className="size-5" />
+                                    Cerrar sesión
+                                </button>
+                            ) : (
+                                <Link
+                                    to="/login"
+                                    onClick={() => setIsOpen(false)}
+                                    className="flex items-center justify-center gap-2 rounded-lg border border-primary px-6 py-3 font-semibold text-primary hover:bg-primary hover:text-white transition"
+                                >
+                                    <User className="size-5" />
+                                    Iniciar sesión
+                                </Link>
+                            )}
                         </div>
                     </div>
                 </>

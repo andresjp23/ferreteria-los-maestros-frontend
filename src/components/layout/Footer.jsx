@@ -1,4 +1,5 @@
 import { MapPin, Phone, Mail, Clock } from "lucide-react"
+import { Link } from "react-router"
 
 const quickLinks = [
     { label: "Inicio", href: "/" },
@@ -26,10 +27,10 @@ export default function Footer() {
             <div className="grid gap-10 px-6 py-12 md:grid-cols-2 md:px-10 md:py-14 xl:grid-cols-4 xl:px-20">
                 {/* Marca */}
                 <div className="flex flex-col gap-4">
-                    <a href="/" className="text-xl font-extrabold leading-tight">
+                    <Link to="/" className="text-xl font-extrabold leading-tight">
                         <span className="block text-white">FERRETERÍA</span>
                         <span className="block text-primary">LOS MAESTROS</span>
-                    </a>
+                    </Link>
                     <p className="max-w-xs text-sm text-white/70">
                         Materiales de construcción, herramientas y ferretería general para tus proyectos, grandes o pequeños.
                     </p>
@@ -44,9 +45,9 @@ export default function Footer() {
                     <ul className="flex flex-col gap-2 text-sm text-white/70">
                         {quickLinks.map(({ label, href }) => (
                             <li key={label}>
-                                <a href={href} className="transition hover:text-primary">
+                                <Link to={href} className="transition hover:text-primary">
                                     {label}
-                                </a>
+                                </Link>
                             </li>
                         ))}
                     </ul>
@@ -61,9 +62,9 @@ export default function Footer() {
                     <ul className="flex flex-col gap-2 text-sm text-white/70">
                         {categories.map(({ label, href }) => (
                             <li key={label}>
-                                <a href={href} className="transition hover:text-primary">
+                                <Link to={href} className="transition hover:text-primary">
                                     {label}
-                                </a>
+                                </Link>
                             </li>
                         ))}
                     </ul>

@@ -10,9 +10,38 @@ export default function RecentOrders() {
                 <SectionTitle>Pedidos recientes</SectionTitle>
             </div>
 
-            {/* La tabla se desplaza hacia el costado DENTRO de la tarjeta si no cabe (móvil),
-                así la página nunca tiene scroll horizontal */}
-            <div className="overflow-x-auto">
+            <ul className="grid gap-3 xl:hidden" aria-label="Pedidos recientes">
+                {orders.map((order) => (
+                    <li key={order.id} className="rounded-lg border border-gray-200 p-4">
+                        <div className="flex items-start justify-between gap-3">
+                            <div>
+                                <p className="text-xs font-medium text-gray-500">N° Pedido</p>
+                                <p className="mt-1 font-semibold text-secondary">#{order.id}</p>
+                            </div>
+                            <StatusBadge status={order.estado} />
+                        </div>
+
+                        <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                            <div className="min-w-0">
+                                <dt className="text-xs font-medium text-gray-500">Cliente</dt>
+                                <dd className="mt-1 truncate text-gray-700">{order.cliente}</dd>
+                            </div>
+                            <div>
+                                <dt className="text-xs font-medium text-gray-500">Fecha</dt>
+                                <dd className="mt-1 text-gray-700">{order.fecha}</dd>
+                            </div>
+                        </dl>
+
+                        <div className="mt-4 flex items-center justify-between border-t border-gray-100 pt-3">
+                            <span className="text-sm text-gray-500">Total</span>
+                            <span className="font-semibold text-secondary">{formatPrice(order.total)}</span>
+                        </div>
+                    </li>
+                ))}
+            </ul>
+
+            {/* La tabla se mantiene en escritorio, donde caben todas las columnas. */}
+            <div className="hidden overflow-x-auto xl:block">
                 <table className="w-full min-w-136 text-left text-sm">
                     <thead className="bg-slate-50 text-gray-500">
                         <tr>

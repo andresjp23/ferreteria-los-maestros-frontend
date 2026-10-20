@@ -15,6 +15,7 @@ import AdminUsers from './pages/admin/Users'
 
 import SellerLayout from "./components/layout/SellerLayout"
 import SellerOrders from "./pages/seller/Orders"
+import NotFound from "./pages/NotFound"
 
 
 
@@ -48,6 +49,7 @@ function App() {
         <Route path="/contacto" element={<Contact />} />
         <Route path="/productos/:id" element={<ProductDetail />} />
         <Route path="/carrito" element={<Cart />} />
+        <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
   )
