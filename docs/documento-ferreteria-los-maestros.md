@@ -50,7 +50,7 @@ npm run test:coverage
 | `src/assets/` | Imágenes importadas por componentes y procesadas por Vite. |
 | `public/products/` | Imágenes WebP servidas por URL desde los mocks. |
 | `public/login/` | Imagen de la vista de login. |
-| `COBERTURA_TESTING_EP2.md` | Registro de tests y métricas de cobertura ejecutadas. |
+| Informe de cobertura EP2 | Artefacto de testing que se adjunta por separado en AVA. |
 
 ## 4. Rutas y permisos
 
@@ -159,7 +159,7 @@ npm test
 npm run test:coverage
 ```
 
-El último informe registrado está en `COBERTURA_TESTING_EP2.md`: 16 tests aprobados y cobertura global de 46,20% de líneas. Las páginas y componentes que aparecen como brechas en ese informe requieren más pruebas.
+El informe de cobertura que se adjunta por separado registra 16 tests aprobados y una cobertura global de 46,20% de líneas. Las páginas y componentes que aparecen como brechas en ese informe requieren más pruebas.
 
 ## 9. Recorrido sugerido para la demostración
 

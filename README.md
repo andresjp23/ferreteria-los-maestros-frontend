@@ -82,6 +82,5 @@ Los datos están en `src/mocks/`; las imágenes que los productos cargan por URL
 ## Pruebas y documentación
 
 - [Documento de funcionalidad y apoyo para la defensa técnica](docs/documento-ferreteria-los-maestros.md)
-- [Informe de cobertura de testing EP2](COBERTURA_TESTING_EP2.md)
 
-Los comandos de pruebas y el alcance medido se detallan en el informe. Las operaciones de alta de productos/usuarios y los estados de pedidos no se guardan en un servidor.
+El documento de cobertura de testing se entrega por separado en AVA. Las operaciones de alta de productos/usuarios y los estados de pedidos no se guardan en un servidor.
