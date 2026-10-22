@@ -1,6 +1,6 @@
 import { Link } from "react-router"
 import { ArrowLeft } from "lucide-react"
-import Logo from "../../assets/logo.png"
+import Logo from "../../assets/brand/logo.webp"
 
 export default function LoginBrandPanel() {
     return (
@@ -8,7 +8,7 @@ export default function LoginBrandPanel() {
         <section className="relative hidden min-h-dvh overflow-hidden bg-secondary xl:block">
             {/* Imagen de fondo (está en public/login) */}
             <img
-                src="/login/login-image.png"
+                src="/login/login-image.webp"
                 alt="Casco de seguridad y herramientas en una ferretería"
                 className="absolute inset-0 size-full object-cover"
             />
@@ -30,11 +30,7 @@ export default function LoginBrandPanel() {
                 pl = distancia desde la izquierda (% del ancho del panel) */}
             <div className="relative z-10 pl-[40%] pr-8 pt-[22dvh]">
                 <div className="flex items-center gap-4">
-                    <img
-                        src={Logo}
-                        alt="Logo Ferretería Los Maestros"
-                        className="w-20 shrink-0 object-contain 2xl:w-24"
-                    />
+                    <img src={Logo} alt="" className="w-20 shrink-0 object-contain 2xl:w-24" />
 
                     <div className="text-2xl font-extrabold uppercase leading-tight 2xl:text-3xl">
                         <p className="text-white">Ferretería</p>
@@ -42,9 +38,7 @@ export default function LoginBrandPanel() {
                     </div>
                 </div>
 
-                <p className="mt-5 text-lg text-white/90 2xl:text-xl">
-                    Tus proyectos, nuestra especialidad
-                </p>
+                <p className="mt-5 text-lg text-white/90 2xl:text-xl">Tus proyectos, nuestra especialidad</p>
             </div>
 
             {/* Acento naranja inferior */}

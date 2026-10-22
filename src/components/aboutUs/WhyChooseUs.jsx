@@ -26,9 +26,7 @@ const benefits = [
 export default function WhyChooseUs() {
     return (
         <div className="rounded-2xl bg-slate-100 p-6 md:p-8">
-            <h2 className="text-lg font-bold text-secondary md:text-xl">
-                ¿Por qué elegirnos?
-            </h2>
+            <h2 className="text-lg font-bold text-secondary md:text-xl">¿Por qué elegirnos?</h2>
 
             <ul className="mt-6 grid gap-6 md:grid-cols-2 md:gap-8">
                 {benefits.map(({ icon: Icon, title, description }) => (

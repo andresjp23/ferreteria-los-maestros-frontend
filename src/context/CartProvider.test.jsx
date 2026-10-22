@@ -1,8 +1,9 @@
 import { act, renderHook, waitFor } from "@testing-library/react"
 import { describe, expect, it } from "vitest"
-import { CartProvider, useCart } from "./CartContext"
+import { CartProvider } from "./CartProvider"
+import useCart from "../hooks/useCart"
 
-const wrapper = ({ children }) => <CartProvider>{children}</CartProvider>
+const wrapper = ({ children }) => <CartProvider catalog={[product]}>{children}</CartProvider>
 
 const product = {
     id: "TEST001",
@@ -24,9 +25,7 @@ describe("CartContext", () => {
         expect(result.current.cartItems).toHaveLength(1)
         expect(result.current.cartItems[0]).toMatchObject({ id: "TEST001", cantidad: 3 })
         await waitFor(() => {
-            expect(JSON.parse(localStorage.getItem("cart"))).toMatchObject([
-                { id: "TEST001", cantidad: 3 },
-            ])
+            expect(JSON.parse(localStorage.getItem("cart"))).toMatchObject([{ id: "TEST001", cantidad: 3 }])
         })
     })
 

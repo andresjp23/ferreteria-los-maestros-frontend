@@ -1,8 +1,5 @@
 import { adminUsers } from "../mocks/adminUsers"
-
-// Valores permitidos de los selectos
-const ROLES = ["admin", "vendedor", "cliente"]
-const STATUSES = ["Activo", "Inactivo"]
+import { roles, userStatuses } from "./roles"
 
 // Valores iniciales del formulario. El ORDEN de estas claves es el orden en que
 // se validan los campos (tiene que coincidir con el orden en que aparecen en pantalla).
@@ -51,11 +48,11 @@ export const validateField = (name, values) => {
 
         case "rol":
             if (!value) return "Selecciona un rol"
-            if (!ROLES.includes(value)) return "Rol no válido"
+            if (!roles.includes(value)) return "Rol no válido"
             return ""
 
         case "estado":
-            return STATUSES.includes(value) ? "" : "Selecciona un estado"
+            return userStatuses.includes(value) ? "" : "Selecciona un estado"
 
         case "password":
             if (!value) return "La contraseña es obligatoria"

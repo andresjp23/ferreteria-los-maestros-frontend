@@ -22,7 +22,7 @@ Frontend de una tienda online para el caso académico de Ferretería Los Maestro
 Desde la raíz del repositorio:
 
 ```bash
-cd frontend/ferreteria-los-maestros
+cd frontend
 npm install
 npm run dev
 ```
@@ -31,39 +31,61 @@ Vite mostrará la URL local en la terminal. Para detener el servidor, usa `Ctrl+
 
 ## Comandos
 
-| Comando | Descripción |
-|---|---|
-| `npm run dev` | Inicia el servidor de desarrollo. |
-| `npm run build` | Genera el build de producción en `dist/`. |
-| `npm run preview` | Sirve localmente el último build. |
-| `npm run lint` | Ejecuta Oxlint. |
-| `npm test` | Ejecuta Vitest una vez. |
-| `npm run test:watch` | Ejecuta Vitest en modo watch. |
+| Comando                 | Descripción                                             |
+| ----------------------- | ------------------------------------------------------- |
+| `npm run dev`           | Inicia el servidor de desarrollo.                       |
+| `npm run build`         | Genera el build de producción en `dist/`.               |
+| `npm run preview`       | Sirve localmente el último build.                       |
+| `npm run lint`          | Ejecuta Oxlint.                                         |
+| `npm run format`        | Formatea el código con Prettier.                        |
+| `npm run format:check`  | Revisa el formato sin modificar archivos (lo usa CI).   |
+| `npm run images`        | Convierte imágenes JPG/PNG nuevas a WebP optimizado.    |
+| `npm test`              | Ejecuta Vitest una vez.                                 |
+| `npm run test:watch`    | Ejecuta Vitest en modo watch.                           |
 | `npm run test:coverage` | Ejecuta los tests y genera cobertura V8 en `coverage/`. |
+
+## Estructura
+
+```text
+src/
+├── components/   # Componentes por sección (admin, auth, cart, layout, products, seller...)
+│   └── ui/       # Componentes reutilizables: SectionTitle, Modal, Notice, Pagination, StatusBadge...
+├── context/      # Providers de sesión (AuthProvider) y carrito (CartProvider)
+├── hooks/        # useAuth, useCart, usePagination
+├── mocks/        # Datos de ejemplo (se reemplazarán por la API)
+├── pages/        # Una vista por ruta; admin/ y seller/ se cargan bajo demanda
+└── utils/        # Formato, catálogo, roles, pedidos y validaciones
+```
+
+Los filtros del catálogo viven en la URL (`/productos?categoria=herramientas&marca=Makita&orden=precio-asc`), así que se pueden compartir con un link.
+
+## Imágenes
+
+Las imágenes se sirven en WebP y redimensionadas al tamaño en que se muestran. Para agregar una nueva, copia el JPG/PNG en su carpeta (`public/products`, `src/assets`, etc.) y ejecuta `npm run images`: el script la convierte y guarda el original en `originals/` (ignorada por git).
 
 ## Rutas principales
 
-| Ruta | Vista | Acceso |
-|---|---|---|
-| `/` | Inicio | Público |
-| `/productos` | Catálogo, búsqueda y filtros | Público |
-| `/productos/:id` | Detalle de producto | Público |
-| `/carrito` | Carrito | Público |
-| `/nosotros` | Información del negocio | Público |
-| `/contacto` | Información y formulario de contacto | Público |
-| `/login` | Inicio de sesión de demostración | Público |
-| `/admin`, `/admin/productos`, `/admin/usuarios` | Panel y gestión mock | Rol `admin` |
-| `/vendedor` | Gestión de pedidos mock | Rol `vendedor` |
+| Ruta                                            | Vista                                | Acceso         |
+| ----------------------------------------------- | ------------------------------------ | -------------- |
+| `/`                                             | Inicio                               | Público        |
+| `/productos`                                    | Catálogo, búsqueda y filtros         | Público        |
+| `/productos/:id`                                | Detalle de producto                  | Público        |
+| `/carrito`                                      | Carrito                              | Público        |
+| `/nosotros`                                     | Información del negocio              | Público        |
+| `/contacto`                                     | Información y formulario de contacto | Público        |
+| `/login`                                        | Inicio de sesión de demostración     | Público        |
+| `/admin`, `/admin/productos`, `/admin/usuarios` | Panel y gestión mock                 | Rol `admin`    |
+| `/vendedor`                                     | Gestión de pedidos mock              | Rol `vendedor` |
 
-Las rutas inexistentes muestran una página 404. El cliente usa el sitio público y vuelve a `/` después de iniciar sesión; no tiene un panel de cuenta propio en esta fase.
+Las rutas inexistentes muestran una página 404. El cliente usa el sitio público y vuelve a `/` después de iniciar sesión; no tiene un panel de cuenta propio en esta fase. Si se intenta abrir una ruta protegida sin sesión, después del login se vuelve a esa ruta.
 
 ## Cuentas de demostración
 
-| Rol | Correo | Contraseña |
-|---|---|---|
-| Cliente | `cliente@losmaestros.cl` | `cliente123` |
-| Vendedor | `vendedor@losmaestros.cl` | `vendedor123` |
-| Administrador | `admin@losmaestros.cl` | `admin123` |
+| Rol           | Correo                    | Contraseña    |
+| ------------- | ------------------------- | ------------- |
+| Cliente       | `cliente@losmaestros.cl`  | `cliente123`  |
+| Vendedor      | `vendedor@losmaestros.cl` | `vendedor123` |
+| Administrador | `admin@losmaestros.cl`    | `admin123`    |
 
 Son credenciales mock incluidas en el frontend, solo para demostración. No deben usarse como cuentas reales.
 
@@ -71,7 +93,7 @@ Son credenciales mock incluidas en el frontend, solo para demostración. No debe
 
 - Catálogo con búsqueda en vivo, filtros por categoría, marca, disponibilidad y precio, orden y botón “Mostrar más”.
 - Detalle de producto con stock, selector de cantidad y productos relacionados.
-- Carrito con límites según stock, eliminación y vaciado. Se conserva en `localStorage`.
+- Carrito con límites según stock, eliminación y vaciado. Se conserva en `localStorage` (solo id y cantidad; precio y stock se leen siempre del catálogo).
 - Inicio de sesión simulado por rol. La sesión se conserva en `localStorage` y la navbar del cliente permite cerrar sesión.
 - Panel admin con dashboard, filtros y paginación de productos/usuarios, y formularios con validaciones.
 - Panel vendedor con filtros, selección, detalle y cambios locales de estado de pedidos.

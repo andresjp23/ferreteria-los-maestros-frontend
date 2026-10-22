@@ -1,53 +1,16 @@
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Link, useParams, useNavigate } from "react-router"
 import { ChevronRight, Minus, Plus, ShoppingCart, Truck, Store } from "lucide-react"
 import { products } from "../mocks/products"
 import ProductCard from "../components/products/ProductCard"
-import { useCart } from "../context/CartContext"
-
-// Nombre bonito de cada categoría (el slug es el valor de product.categoria)
-const categoryLabels = {
-    "materiales-construccion": "Materiales de construcción",
-    pinturas: "Pinturas",
-    herramientas: "Herramientas",
-    gasfiteria: "Gasfitería",
-    electricidad: "Electricidad",
-    tornilleria: "Tornillería",
-    madera: "Madera",
-    seguridad: "Seguridad",
-    jardin: "Jardín",
-}
-
-// 5990 -> "$5.990"
-const formatPrice = (value) =>
-    new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP" }).format(value)
-
-// Título de sección con la barrita naranja (igual que en el resto del sitio)
-function SectionTitle({ children }) {
-    return (
-        <h2 className="flex items-center gap-3 text-lg font-bold text-secondary md:text-xl">
-            <span className="h-1 w-6 rounded-full bg-primary md:w-8" />
-            {children}
-        </h2>
-    )
-}
+import SectionTitle from "../components/ui/SectionTitle"
+import useCart from "../hooks/useCart"
+import { formatPrice, formatUnit } from "../utils/format"
+import { getCategoryName, getProductById } from "../utils/catalog"
 
 export default function ProductDetail() {
     const { id } = useParams() // el :id de /productos/:id
-    const navigate = useNavigate()
-    const { addToCart, cartItems } = useCart()
-
-    const [quantity, setQuantity] = useState(1)
-    const [added, setAdded] = useState(false) // true después de agregar al carrito
-
-    // Al cambiar de producto: cantidad en 1, sin aviso y vuelve arriba de la página
-    useEffect(() => {
-        setQuantity(1)
-        setAdded(false)
-        window.scrollTo(0, 0)
-    }, [id])
-
-    const product = products.find((p) => p.id === id)
+    const product = getProductById(id)
 
     // Si el id no existe
     if (!product) {
@@ -55,9 +18,7 @@ export default function ProductDetail() {
             <section className="px-6 py-16 text-center md:px-10 xl:px-20">
                 <title>Producto no encontrado | Ferretería Los Maestros</title>
                 <h1 className="text-xl font-bold text-secondary md:text-2xl">Producto no encontrado</h1>
-                <p className="mt-2 text-sm text-gray-600">
-                    El producto que buscas no existe o ya no está disponible.
-                </p>
+                <p className="mt-2 text-sm text-gray-600">El producto que buscas no existe o ya no está disponible.</p>
                 <Link
                     to="/productos"
                     className="mt-6 inline-block rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-white hover:opacity-90"
@@ -68,14 +29,20 @@ export default function ProductDetail() {
         )
     }
 
-    const inStock = product.stock > 0
-    const categoryName = categoryLabels[product.categoria] ?? product.categoria
+    // key={product.id}: al pasar a otro producto (por ejemplo, desde "relacionados") React crea
+    // el componente de nuevo, así la cantidad y el aviso parten de cero sin necesidad de un useEffect
+    return <ProductDetailView key={product.id} product={product} />
+}
 
-    // "Unidad" se muestra como c/u. El resto, tal cual: "Saco" -> "/ saco"
-    const unitText =
-        product.unidad === "Unidad"
-            ? "c/u"
-            : `/ ${product.unidad.charAt(0).toLowerCase()}${product.unidad.slice(1)}`
+function ProductDetailView({ product }) {
+    const navigate = useNavigate()
+    const { addToCart, cartItems } = useCart()
+
+    const [quantity, setQuantity] = useState(1)
+    const [added, setAdded] = useState(false) // true después de agregar al carrito
+
+    const inStock = product.stock > 0
+    const categoryName = getCategoryName(product.categoria)
 
     // La cantidad nunca baja de 1 ni pasa del stock
     const decrease = () => setQuantity((q) => Math.max(1, q - 1))
@@ -111,9 +78,7 @@ export default function ProductDetail() {
     ]
 
     // Hasta 4 productos de la misma categoría, sin contar el actual
-    const related = products
-        .filter((p) => p.categoria === product.categoria && p.id !== product.id)
-        .slice(0, 4)
+    const related = products.filter((p) => p.categoria === product.categoria && p.id !== product.id).slice(0, 4)
 
     return (
         <section className="px-6 py-8 md:px-10 md:py-10 xl:px-20 xl:py-12">
@@ -124,9 +89,13 @@ export default function ProductDetail() {
                 aria-label="Ruta de navegación"
                 className="mb-5 flex flex-wrap items-center gap-2 text-sm text-gray-500"
             >
-                <Link to="/" className="transition-colors hover:text-primary">Inicio</Link>
+                <Link to="/" className="transition-colors hover:text-primary">
+                    Inicio
+                </Link>
                 <ChevronRight className="size-4 shrink-0" />
-                <Link to="/productos" className="transition-colors hover:text-primary">Productos</Link>
+                <Link to="/productos" className="transition-colors hover:text-primary">
+                    Productos
+                </Link>
                 <ChevronRight className="size-4 shrink-0" />
                 <span aria-current="page" className="font-medium text-secondary">
                     {product.nombre}
@@ -137,18 +106,12 @@ export default function ProductDetail() {
             <div className="grid gap-6 rounded-xl border border-gray-200 bg-white p-5 md:grid-cols-2 md:gap-8 md:p-6 xl:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
                 {/* Foto */}
                 <div className="flex aspect-4/3 items-center justify-center overflow-hidden rounded-lg bg-gray-50 p-4">
-                    <img
-                        src={product.image}
-                        alt={product.nombre}
-                        className="size-full object-contain"
-                    />
+                    <img src={product.image} alt={product.nombre} className="size-full object-contain" />
                 </div>
 
                 {/* Información */}
                 <div className="flex flex-col">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-primary">
-                        {categoryName}
-                    </p>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-primary">{categoryName}</p>
 
                     <h1 className="mt-1 text-xl font-bold leading-tight text-secondary md:text-2xl">
                         {product.nombre}
@@ -165,14 +128,12 @@ export default function ProductDetail() {
                         <span className="text-2xl font-bold text-secondary md:text-3xl">
                             {formatPrice(product.precio)}
                         </span>
-                        <span className="text-sm text-gray-500">{unitText}</span>
+                        <span className="text-sm text-gray-500">{formatUnit(product.unidad)}</span>
                     </p>
 
                     {/* Stock */}
                     <p className="mt-2 flex items-center gap-2 text-sm text-gray-600">
-                        <span
-                            className={`size-2 rounded-full ${inStock ? "bg-green-500" : "bg-red-500"}`}
-                        />
+                        <span className={`size-2 rounded-full ${inStock ? "bg-green-500" : "bg-red-500"}`} />
                         {inStock ? `En stock · ${product.stock} disponibles` : "Sin stock"}
                     </p>
 
@@ -234,7 +195,7 @@ export default function ProductDetail() {
 
                         {/* Aviso después de agregar */}
                         {added && (
-                            <p className="text-sm text-green-600">
+                            <p role="status" className="text-sm text-green-600">
                                 Producto agregado al carrito.{" "}
                                 <Link to="/carrito" className="font-semibold underline">
                                     Ver carrito
@@ -263,10 +224,7 @@ export default function ProductDetail() {
 
                 <dl className="mt-5 grid gap-x-10 gap-y-3 text-sm md:grid-cols-2">
                     {details.map(({ label, value }) => (
-                        <div
-                            key={label}
-                            className="flex justify-between gap-4 border-b border-gray-100 pb-3"
-                        >
+                        <div key={label} className="flex justify-between gap-4 border-b border-gray-100 pb-3">
                             <dt className="text-gray-500">{label}</dt>
                             <dd className="text-right font-medium text-secondary">{value}</dd>
                         </div>
@@ -289,17 +247,7 @@ export default function ProductDetail() {
 
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
                         {related.map((p) => (
-                            <ProductCard
-                                key={p.id}
-                                id={p.id}
-                                image={p.image}
-                                categoria={categoryLabels[p.categoria]}
-                                nombre={p.nombre}
-                                precio={p.precio}
-                                unidad={p.unidad}
-                                stock={p.stock}
-                                onAddToCart={() => addToCart(p)}
-                            />
+                            <ProductCard key={p.id} product={p} onAddToCart={() => addToCart(p)} />
                         ))}
                     </div>
                 </div>

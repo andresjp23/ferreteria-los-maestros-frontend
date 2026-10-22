@@ -4,8 +4,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react"
 const MAX_BUTTONS = 5
 
 // Clases comunes a todos los botones
-const buttonBase =
-    "flex size-9 items-center justify-center rounded-lg border text-sm font-medium transition"
+const buttonBase = "flex size-9 items-center justify-center rounded-lg border text-sm font-medium transition"
 
 export default function Pagination({ page, totalPages, onPageChange }) {
     // Primer número a mostrar: deja la página actual al centro de la ventana,

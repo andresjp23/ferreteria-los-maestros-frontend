@@ -5,10 +5,7 @@ import { ChevronDown } from "lucide-react"
 export default function FilterSelect({ id, label, hideLabel = false, value, onChange, children }) {
     return (
         <div>
-            <label
-                htmlFor={id}
-                className={hideLabel ? "sr-only" : "mb-1 block text-xs font-medium text-gray-500"}
-            >
+            <label htmlFor={id} className={hideLabel ? "sr-only" : "mb-1 block text-xs font-medium text-gray-500"}>
                 {label}
             </label>
 

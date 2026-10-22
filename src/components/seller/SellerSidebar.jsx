@@ -1,17 +1,7 @@
-
 import { Link, NavLink, useNavigate } from "react-router"
-import {
-    LayoutDashboard,
-    Package,
-    ShoppingCart,
-    Users,
-    ChartNoAxesColumn,
-    Settings,
-    LogOut,
-    X,
-} from "lucide-react"
-import { useAuth } from "../../context/AuthContext"
-import Logo from "../../assets/logo.png"
+import { LayoutDashboard, Package, ShoppingCart, Users, ChartNoAxesColumn, Settings, LogOut, X } from "lucide-react"
+import useAuth from "../../hooks/useAuth"
+import Logo from "../../assets/brand/logo.webp"
 
 const links = [
     { label: "Dashboard", icon: LayoutDashboard, disabled: true },
@@ -33,19 +23,12 @@ export default function SellerSidebar({ open, onClose }) {
 
     const linkClass = ({ isActive }) =>
         `flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-colors ${
-            isActive
-                ? "bg-primary text-white"
-                : "text-white/80 hover:bg-white/10 hover:text-white"
+            isActive ? "bg-primary text-white" : "text-white/80 hover:bg-white/10 hover:text-white"
         }`
 
     return (
         <>
-            {open && (
-                <div
-                    onClick={onClose}
-                    className="fixed inset-0 z-30 bg-black/50 xl:hidden"
-                />
-            )}
+            {open && <div aria-hidden="true" onClick={onClose} className="fixed inset-0 z-30 bg-black/50 xl:hidden" />}
 
             <aside
                 className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col bg-secondary transition-transform duration-200 xl:translate-x-0 ${
@@ -53,28 +36,15 @@ export default function SellerSidebar({ open, onClose }) {
                 }`}
             >
                 <div className="flex h-20 items-center justify-between border-b border-white/10 px-5">
-                    <Link
-                        to="/vendedor"
-                        onClick={onClose}
-                        className="flex items-center gap-3"
-                    >
-                        <img
-                            src={Logo}
-                            alt="Ferretería Los Maestros"
-                            className="w-10 object-contain"
-                        />
+                    <Link to="/vendedor" onClick={onClose} className="flex items-center gap-3">
+                        <img src={Logo} alt="" className="w-10 object-contain" />
                         <div className="text-sm font-extrabold uppercase leading-tight">
                             <p className="text-white">Ferretería</p>
                             <p className="text-primary">Los Maestros</p>
                         </div>
                     </Link>
 
-                    <button
-                        type="button"
-                        onClick={onClose}
-                        aria-label="Cerrar menú"
-                        className="text-white xl:hidden"
-                    >
+                    <button type="button" onClick={onClose} aria-label="Cerrar menú" className="text-white xl:hidden">
                         <X className="size-6" />
                     </button>
                 </div>
@@ -92,17 +62,11 @@ export default function SellerSidebar({ open, onClose }) {
                                 {label}
                             </div>
                         ) : (
-                            <NavLink
-                                key={to}
-                                to={to}
-                                end={end}
-                                onClick={onClose}
-                                className={linkClass}
-                            >
+                            <NavLink key={to} to={to} end={end} onClick={onClose} className={linkClass}>
                                 <Icon className="size-5" />
                                 {label}
                             </NavLink>
-                        )
+                        ),
                     )}
                 </nav>
 

@@ -8,10 +8,12 @@ const quickLinks = [
     { label: "Contacto", href: "/contacto" },
 ]
 
+// Cada enlace abre el catálogo filtrado por esa categoría
 const categories = [
-    { label: "Materiales de construcción", href: "/productos" },
-    { label: "Herramientas", href: "/productos" },
-    { label: "Gasfitería y electricidad", href: "/productos" },
+    { label: "Materiales de construcción", href: "/productos?categoria=materiales-construccion" },
+    { label: "Herramientas", href: "/productos?categoria=herramientas" },
+    { label: "Gasfitería", href: "/productos?categoria=gasfiteria" },
+    { label: "Electricidad", href: "/productos?categoria=electricidad" },
 ]
 
 const contactInfo = [
@@ -20,6 +22,9 @@ const contactInfo = [
     { icon: Mail, text: "contacto@losmaestros.cl" },
     { icon: Clock, text: "Lun a Sáb: 9:00 - 19:00" },
 ]
+
+// Año del copyright. Se calcula una vez al cargar el módulo, no en cada render.
+const currentYear = new Date().getFullYear()
 
 export default function Footer() {
     return (
@@ -32,7 +37,8 @@ export default function Footer() {
                         <span className="block text-primary">LOS MAESTROS</span>
                     </Link>
                     <p className="max-w-xs text-sm text-white/70">
-                        Materiales de construcción, herramientas y ferretería general para tus proyectos, grandes o pequeños.
+                        Materiales de construcción, herramientas y ferretería general para tus proyectos, grandes o
+                        pequeños.
                     </p>
                 </div>
 
@@ -89,7 +95,7 @@ export default function Footer() {
 
             {/* Barra inferior */}
             <div className="border-t border-white/10 px-6 py-5 text-center text-xs text-white/60 md:px-10 xl:px-20">
-                © {new Date().getFullYear()} Ferretería Los Maestros. Todos los derechos reservados.
+                © {currentYear} Ferretería Los Maestros. Todos los derechos reservados.
             </div>
         </footer>
     )

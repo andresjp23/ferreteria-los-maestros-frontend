@@ -1,9 +1,9 @@
 import { useState } from "react"
 import { Link } from "react-router"
 import { ArrowLeft, ArrowRight, Mail, Lock, Eye, EyeOff } from "lucide-react"
-import { useAuth } from "../../context/AuthContext"
+import useAuth from "../../hooks/useAuth"
 import { users } from "../../mocks/users"
-import Logo from "../../assets/logo.png"
+import Logo from "../../assets/brand/logo.webp"
 
 // Campo del formulario: etiqueta + caja con ícono + input.
 // "action" es un espacio opcional a la derecha (por ejemplo, el ojo de la contraseña).
@@ -81,11 +81,7 @@ export default function LoginForm() {
             <div className="w-full max-w-md">
                 {/* Marca compacta: solo en móvil y tablet */}
                 <div className="mb-8 flex items-center gap-3 xl:hidden">
-                    <img
-                        src={Logo}
-                        alt="Logo Ferretería Los Maestros"
-                        className="w-12 object-contain"
-                    />
+                    <img src={Logo} alt="" className="w-12 object-contain" />
                     <div className="text-base font-extrabold uppercase leading-tight">
                         <p className="text-secondary">Ferretería</p>
                         <p className="text-primary">Los Maestros</p>
@@ -166,8 +162,8 @@ export default function LoginForm() {
                     <ul className="mt-3 space-y-2 text-xs text-slate-600">
                         {users.map((u) => (
                             <li key={u.id} className="wrap-break-word">
-                                <span className="font-semibold capitalize text-secondary">{u.rol}:</span>{" "}
-                                {u.email} / {u.password}
+                                <span className="font-semibold capitalize text-secondary">{u.rol}:</span> {u.email} /{" "}
+                                {u.password}
                             </li>
                         ))}
                     </ul>

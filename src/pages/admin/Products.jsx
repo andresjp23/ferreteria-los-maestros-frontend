@@ -1,26 +1,27 @@
 import { useState } from "react"
-import { Plus, X } from "lucide-react"
+import { Plus } from "lucide-react"
 import { products } from "../../mocks/products"
-import { categories } from "../../mocks/categories"
 import { getStockStatus } from "../../utils/stock"
-import { normalizeText } from "../../utils/format"
+import { matchesAllWords } from "../../utils/format"
+import { getCategoryName } from "../../utils/catalog"
+import { buildProduct } from "../../utils/productValidation"
+import usePagination from "../../hooks/usePagination"
 import PageHeader from "../../components/admin/PageHeader"
 import ProductFilters from "../../components/admin/products/ProductFilters"
 import ProductsTable from "../../components/admin/products/ProductsTable"
-import Pagination from "../../components/admin/Pagination"
-import Modal from "../../components/admin/Modal"
 import AddProductForm from "../../components/admin/products/AddProductForm"
-import { buildProduct } from "../../utils/productValidation"
+import Pagination from "../../components/ui/Pagination"
+import Modal from "../../components/ui/Modal"
+import Notice from "../../components/ui/Notice"
 
 // Cuántos productos se muestran por página
 const PAGE_SIZE = 8
 
 export default function AdminProducts() {
-    // Filtros ("" = sin filtro) y página actual
+    // Filtros ("" = sin filtro)
     const [search, setSearch] = useState("")
     const [category, setCategory] = useState("")
     const [status, setStatus] = useState("")
-    const [page, setPage] = useState(1)
 
     // Modal de "Agregar producto" y aviso de resultado
     const [isAddOpen, setIsAddOpen] = useState(false)
@@ -28,65 +29,39 @@ export default function AdminProducts() {
 
     // Se ejecuta cuando el formulario pasa TODAS las validaciones
     const handleAddProduct = (values) => {
-        // Convierte los textos del formulario en el producto con sus tipos reales
+        // Convierte los textos del formulario en el producto con sus tipos reales.
+        // Fase 2: aquí va la llamada al backend (POST /productos) con newProduct.
         const newProduct = buildProduct(values)
 
-        // Fase 2: aquí va la llamada al backend. Por ahora solo se muestra cómo quedaría el producto.
-        console.log("Producto listo para enviar:", newProduct)
-
         setIsAddOpen(false)
-        setNotice(`El producto "${newProduct.nombre}" pasó todas las validaciones.`)
+        setNotice(
+            `El producto "${newProduct.nombre}" pasó todas las validaciones. Por ahora no se guarda: eso llega con el backend.`,
+        )
     }
 
-    // Cada vez que cambia un filtro se vuelve a la página 1
-    const handleSearchChange = (value) => {
-        setSearch(value)
-        setPage(1)
-    }
-    const handleCategoryChange = (value) => {
-        setCategory(value)
-        setPage(1)
-    }
-    const handleStatusChange = (value) => {
-        setStatus(value)
-        setPage(1)
-    }
     const handleClear = () => {
         setSearch("")
         setCategory("")
         setStatus("")
-        setPage(1)
     }
 
-    // Texto buscado, sin mayúsculas ni tildes
-    const normalizedSearch = normalizeText(search.trim())
-
-    // Productos que cumplen los tres filtros a la vez (cada filtro vacío deja pasar a todos)
-    const filteredProducts = products.filter((product) => {
-        const categoryName = categories.find((c) => c.id === product.categoria)?.nombre ?? ""
-
-        // Texto donde se busca: nombre y categoría
-        const text = normalizeText(`${product.nombre} ${categoryName}`)
-
-        return (
-            // Todas las palabras escritas tienen que aparecer en el texto
-            (normalizedSearch === "" || normalizedSearch.split(" ").every((word) => text.includes(word))) &&
+    // Productos que cumplen los tres filtros a la vez (cada filtro vacío deja pasar a todos).
+    // En la búsqueda, todas las palabras escritas tienen que aparecer en el nombre o la categoría.
+    const filteredProducts = products.filter(
+        (product) =>
+            matchesAllWords(`${product.nombre} ${getCategoryName(product.categoria)}`, search) &&
             (category === "" || product.categoria === category) &&
-            (status === "" || getStockStatus(product.stock) === status)
-        )
+            (status === "" || getStockStatus(product.stock) === status),
+    )
+
+    // Paginación: si cambia algún filtro, vuelve a la página 1
+    const { page, totalPages, pageItems, setPage, start, end, total } = usePagination(filteredProducts, {
+        pageSize: PAGE_SIZE,
+        resetKey: `${search}|${category}|${status}`,
     })
 
-    // Paginación
-    const total = filteredProducts.length
-    const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
-    const startIndex = (page - 1) * PAGE_SIZE
-    const pageProducts = filteredProducts.slice(startIndex, startIndex + PAGE_SIZE)
-
     // Texto "Mostrando 1-8 de 85 productos"
-    const summary =
-        total === 0
-            ? "No hay productos"
-            : `Mostrando ${startIndex + 1}-${startIndex + pageProducts.length} de ${total} productos`
+    const summary = total === 0 ? "No hay productos" : `Mostrando ${start}-${end} de ${total} productos`
 
     return (
         <>
@@ -108,30 +83,15 @@ export default function AdminProducts() {
             />
 
             {/* Aviso después de agregar */}
-            {notice && (
-                <div
-                    role="status"
-                    className="mt-6 flex items-start justify-between gap-4 rounded-xl border border-green-200 bg-green-50 px-5 py-4 text-sm text-green-700"
-                >
-                    <p>{notice}</p>
-                    <button
-                        type="button"
-                        onClick={() => setNotice("")}
-                        aria-label="Cerrar aviso"
-                        className="shrink-0 hover:text-green-900"
-                    >
-                        <X className="size-4" />
-                    </button>
-                </div>
-            )}
+            {notice && <Notice onClose={() => setNotice("")}>{notice}</Notice>}
 
             <ProductFilters
                 search={search}
-                onSearchChange={handleSearchChange}
+                onSearchChange={setSearch}
                 category={category}
-                onCategoryChange={handleCategoryChange}
+                onCategoryChange={setCategory}
                 status={status}
-                onStatusChange={handleStatusChange}
+                onStatusChange={setStatus}
                 onClear={handleClear}
             />
 
@@ -151,9 +111,7 @@ export default function AdminProducts() {
                     </div>
                 ) : (
                     <>
-                        <p className="mb-4 text-right text-xs text-gray-500">{summary}</p>
-
-                        <ProductsTable products={pageProducts} />
+                        <ProductsTable products={pageItems} />
 
                         <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                             <p className="text-xs text-gray-500">{summary}</p>
@@ -162,7 +120,7 @@ export default function AdminProducts() {
                     </>
                 )}
             </section>
-            
+
             <Modal open={isAddOpen} onClose={() => setIsAddOpen(false)} title="Agregar producto">
                 <AddProductForm onCancel={() => setIsAddOpen(false)} onSubmit={handleAddProduct} />
             </Modal>

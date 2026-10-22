@@ -2,93 +2,67 @@ import { useState } from "react"
 import { Plus } from "lucide-react"
 import { adminUsers } from "../../mocks/adminUsers"
 import { roleLabels } from "../../utils/roles"
-import { normalizeText } from "../../utils/format"
-import { buildUser } from "../../utils/userValidations"  
+import { matchesAllWords } from "../../utils/format"
+import { buildUser } from "../../utils/userValidations"
+import usePagination from "../../hooks/usePagination"
 import PageHeader from "../../components/admin/PageHeader"
 import UserFilters from "../../components/admin/users/UserFilters"
 import UsersTable from "../../components/admin/users/UsersTable"
-import Pagination from "../../components/admin/Pagination"
-import Modal from "../../components/admin/Modal"
 import AddUserForm from "../../components/admin/users/AddUserForm"
-import Notice from "../../components/admin/Notice"  
+import Pagination from "../../components/ui/Pagination"
+import Modal from "../../components/ui/Modal"
+import Notice from "../../components/ui/Notice"
 
 // Cuántos usuarios se muestran por página
 const PAGE_SIZE = 8
 
 export default function AdminUsers() {
-    // Filtros ("" = sin filtro) y página actual
+    // Filtros ("" = sin filtro)
     const [search, setSearch] = useState("")
     const [role, setRole] = useState("")
     const [status, setStatus] = useState("")
-    const [page, setPage] = useState(1)
 
     // modal de "Agregar usuario" y aviso de resultado
     const [isAddOpen, setIsAddOpen] = useState(false)
     const [notice, setNotice] = useState("")
 
-
-    // Cada vez que cambia un filtro se vuelve a la página 1
-    const handleSearchChange = (value) => {
-        setSearch(value)
-        setPage(1)
-    }
-    const handleRoleChange = (value) => {
-        setRole(value)
-        setPage(1)
-    }
-    const handleStatusChange = (value) => {
-        setStatus(value)
-        setPage(1)
-    }
     const handleClear = () => {
         setSearch("")
         setRole("")
         setStatus("")
-        setPage(1)
     }
 
     // se ejecuta cuando el formulario pasa TODAS las validaciones
     const handleAddUser = (values) => {
-        // Convierte los textos del formulario en el usuario con sus datos limpios (sin contraseña)
-        const newUser = buildUser(values)
-
+        // Convierte los textos del formulario en el usuario con sus datos limpios (sin contraseña).
         // Fase 2: aquí va la llamada al backend (con la contraseña, por HTTPS).
-        // Por ahora solo se muestra cómo quedaría el usuario.
-        console.log("Usuario listo para enviar:", newUser)
+        const newUser = buildUser(values)
 
         setIsAddOpen(false)
 
         // Texto del mensaje de éxito
-        setNotice(`El usuario "${newUser.nombre}" pasó todas las validaciones. Por ahora no se guarda: eso llega con el backend.`)
+        setNotice(
+            `El usuario "${newUser.nombre}" pasó todas las validaciones. Por ahora no se guarda: eso llega con el backend.`,
+        )
     }
 
-    // Texto buscado, sin mayúsculas ni tildes
-    const normalizedSearch = normalizeText(search.trim())
-
-    // Usuarios que cumplen los tres filtros a la vez (cada filtro vacío deja pasar a todos)
-    const filteredUsers = adminUsers.filter((user) => {
-        // Texto donde se busca: nombre, email y nombre visible del rol
-        const text = normalizeText(`${user.nombre} ${user.email} ${roleLabels[user.rol]}`)
-
-        return (
-            // Todas las palabras escritas tienen que aparecer en el texto
-            (normalizedSearch === "" || normalizedSearch.split(" ").every((word) => text.includes(word))) &&
+    // Usuarios que cumplen los tres filtros a la vez (cada filtro vacío deja pasar a todos).
+    // En la búsqueda, todas las palabras escritas tienen que aparecer en el nombre, email o rol.
+    const filteredUsers = adminUsers.filter(
+        (user) =>
+            matchesAllWords(`${user.nombre} ${user.email} ${roleLabels[user.rol]}`, search) &&
             (role === "" || user.rol === role) &&
-            (status === "" || user.estado === status)
-        )
+            (status === "" || user.estado === status),
+    )
+
+    // Paginación: si cambia algún filtro, vuelve a la página 1
+    const { page, totalPages, pageItems, setPage, start, end, total } = usePagination(filteredUsers, {
+        pageSize: PAGE_SIZE,
+        resetKey: `${search}|${role}|${status}`,
     })
 
-    // Paginación
-    const total = filteredUsers.length
-    const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
-    const startIndex = (page - 1) * PAGE_SIZE
-    const pageUsers = filteredUsers.slice(startIndex, startIndex + PAGE_SIZE)
-
     // Texto "Mostrando 1-8 de 42 usuarios"
-    const summary =
-        total === 0
-            ? "No hay usuarios"
-            : `Mostrando ${startIndex + 1}-${startIndex + pageUsers.length} de ${total} usuarios`
+    const summary = total === 0 ? "No hay usuarios" : `Mostrando ${start}-${end} de ${total} usuarios`
 
     return (
         <>
@@ -114,11 +88,11 @@ export default function AdminUsers() {
 
             <UserFilters
                 search={search}
-                onSearchChange={handleSearchChange}
+                onSearchChange={setSearch}
                 role={role}
-                onRoleChange={handleRoleChange}
+                onRoleChange={setRole}
                 status={status}
-                onStatusChange={handleStatusChange}
+                onStatusChange={setStatus}
                 onClear={handleClear}
             />
 
@@ -138,7 +112,7 @@ export default function AdminUsers() {
                     </div>
                 ) : (
                     <>
-                        <UsersTable users={pageUsers} />
+                        <UsersTable users={pageItems} />
 
                         <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                             <p className="text-xs text-gray-500">{summary}</p>

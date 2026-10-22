@@ -1,13 +1,15 @@
 import { Search, RefreshCw } from "lucide-react"
 import { categories } from "../../../mocks/categories"
 import { stockStatuses } from "../../../utils/stock"
-import FilterSelect from "../FilterSelect"    
-
+import FilterSelect from "../FilterSelect"
 
 export default function ProductFilters({
-    search, onSearchChange,
-    category, onCategoryChange,
-    status, onStatusChange,
+    search,
+    onSearchChange,
+    category,
+    onCategoryChange,
+    status,
+    onStatusChange,
     onClear,
 }) {
     return (
@@ -16,7 +18,9 @@ export default function ProductFilters({
         <div className="mt-6 grid gap-4 rounded-xl border border-gray-200 bg-white p-5 md:grid-cols-2 md:p-6 xl:grid-cols-[minmax(0,1fr)_13rem_13rem_auto] xl:items-end">
             {/* Búsqueda */}
             <div className="md:col-span-2 xl:col-span-1">
-                <label htmlFor="admin-search" className="sr-only">Buscar productos</label>
+                <label htmlFor="admin-search" className="sr-only">
+                    Buscar productos
+                </label>
 
                 <div className="flex items-center gap-3 rounded-lg border border-gray-200 bg-slate-50 px-4 transition focus-within:border-primary">
                     <Search className="size-5 shrink-0 text-gray-400" />
@@ -34,14 +38,18 @@ export default function ProductFilters({
             <FilterSelect id="admin-category" label="Categoría" value={category} onChange={onCategoryChange}>
                 <option value="">Todas</option>
                 {categories.map((c) => (
-                    <option key={c.id} value={c.id}>{c.nombre}</option>
+                    <option key={c.id} value={c.id}>
+                        {c.nombre}
+                    </option>
                 ))}
             </FilterSelect>
 
             <FilterSelect id="admin-status" label="Estado" value={status} onChange={onStatusChange}>
                 <option value="">Todos</option>
                 {stockStatuses.map((s) => (
-                    <option key={s} value={s}>{s}</option>
+                    <option key={s} value={s}>
+                        {s}
+                    </option>
                 ))}
             </FilterSelect>
 

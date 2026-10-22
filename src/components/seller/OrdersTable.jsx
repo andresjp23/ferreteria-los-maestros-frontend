@@ -1,7 +1,6 @@
-
 import { Eye, Pencil, Truck } from "lucide-react"
-import StatusBadge from "../admin/StatusBadge"
-import Pagination from "../admin/Pagination"
+import StatusBadge from "../ui/StatusBadge"
+import Pagination from "../ui/Pagination"
 import { formatPrice } from "../../utils/format"
 
 export default function OrdersTable({
@@ -19,8 +18,7 @@ export default function OrdersTable({
     start,
     end,
 }) {
-    const allSelected =
-        orders.length > 0 && orders.every((order) => selectedIds.includes(order.id))
+    const allSelected = orders.length > 0 && orders.every((order) => selectedIds.includes(order.id))
 
     return (
         <section className="mt-3 rounded-xl border border-blue-100 bg-white p-4 md:p-5">
@@ -70,7 +68,9 @@ export default function OrdersTable({
                                     </div>
                                     <div className="col-span-2">
                                         <dt className="text-xs font-medium text-slate-500">Total</dt>
-                                        <dd className="mt-1 font-semibold text-secondary">{formatPrice(order.total)}</dd>
+                                        <dd className="mt-1 font-semibold text-secondary">
+                                            {formatPrice(order.total)}
+                                        </dd>
                                     </div>
                                 </dl>
 
@@ -132,18 +132,13 @@ export default function OrdersTable({
                             <th className="px-3 py-3 font-medium">Fecha</th>
                             <th className="px-3 py-3 font-medium">Total</th>
                             <th className="px-3 py-3 font-medium">Estado</th>
-                            <th className="rounded-r-lg px-3 py-3 text-center font-medium">
-                                Acciones
-                            </th>
+                            <th className="rounded-r-lg px-3 py-3 text-center font-medium">Acciones</th>
                         </tr>
                     </thead>
 
                     <tbody>
                         {orders.map((order) => (
-                            <tr
-                                key={order.id}
-                                className="border-b border-slate-100 last:border-0 hover:bg-slate-50/70"
-                            >
+                            <tr key={order.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/70">
                                 <td className="px-3 py-4">
                                     <input
                                         type="checkbox"
@@ -154,17 +149,11 @@ export default function OrdersTable({
                                     />
                                 </td>
 
-                                <td className="px-3 py-4 font-semibold text-secondary">
-                                    #{order.id}
-                                </td>
+                                <td className="px-3 py-4 font-semibold text-secondary">#{order.id}</td>
 
-                                <td className="px-3 py-4 text-secondary">
-                                    {order.cliente}
-                                </td>
+                                <td className="px-3 py-4 text-secondary">{order.cliente}</td>
 
-                                <td className="whitespace-nowrap px-3 py-4 text-slate-500">
-                                    {order.fecha}
-                                </td>
+                                <td className="whitespace-nowrap px-3 py-4 text-slate-500">{order.fecha}</td>
 
                                 <td className="whitespace-nowrap px-3 py-4 font-semibold text-secondary">
                                     {formatPrice(order.total)}
@@ -213,10 +202,7 @@ export default function OrdersTable({
 
                         {orders.length === 0 && (
                             <tr>
-                                <td
-                                    colSpan={7}
-                                    className="px-4 py-12 text-center text-slate-500"
-                                >
+                                <td colSpan={7} className="px-4 py-12 text-center text-slate-500">
                                     No se encontraron pedidos con esos filtros.
                                 </td>
                             </tr>
@@ -230,13 +216,7 @@ export default function OrdersTable({
                     Mostrando {start}-{end} de {total} pedidos
                 </p>
 
-                {totalPages > 1 && (
-                    <Pagination
-                        page={page}
-                        totalPages={totalPages}
-                        onPageChange={onPageChange}
-                    />
-                )}
+                {totalPages > 1 && <Pagination page={page} totalPages={totalPages} onPageChange={onPageChange} />}
             </div>
         </section>
     )

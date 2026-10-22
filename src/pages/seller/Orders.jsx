@@ -1,12 +1,13 @@
-
-import { useMemo, useState } from "react"
-import { X } from "lucide-react"
+import { useState } from "react"
 import { orders as initialOrders } from "../../mocks/orders"
-import SectionTitle from "../../components/admin/SectionTitle"
+import SectionTitle from "../../components/ui/SectionTitle"
+import StatusBadge from "../../components/ui/StatusBadge"
+import Modal from "../../components/ui/Modal"
 import OrderFilters from "../../components/seller/OrderFilters"
 import OrdersTable from "../../components/seller/OrdersTable"
-import StatusBadge from "../../components/admin/StatusBadge"
+import usePagination from "../../hooks/usePagination"
 import { formatPrice } from "../../utils/format"
+import { filterOrders, orderStatuses } from "../../utils/orders"
 
 const PAGE_SIZE = 8
 
@@ -15,64 +16,40 @@ export default function Orders() {
     const [search, setSearch] = useState("")
     const [status, setStatus] = useState("Todos")
     const [date, setDate] = useState("Todas")
-    const [page, setPage] = useState(1)
     const [selectedIds, setSelectedIds] = useState([])
     const [selectedOrder, setSelectedOrder] = useState(null)
     const [editMode, setEditMode] = useState(false)
 
-    const filteredOrders = useMemo(() => {
-        const normalizedSearch = search.trim().toLowerCase()
+    // Momento de referencia para "últimos N días". Se toma una sola vez al abrir la página:
+    // leer la hora directamente durante el render haría que el resultado cambie entre renders.
+    const [now] = useState(() => Date.now())
 
-        return orders.filter((order) => {
-            const matchesSearch =
-                String(order.id).includes(normalizedSearch) ||
-                order.cliente.toLowerCase().includes(normalizedSearch) ||
-                (order.productos ?? []).some((product) =>
-                    product.toLowerCase().includes(normalizedSearch)
-                )
+    const filteredOrders = filterOrders(orders, { search: search.trim(), status, days: date, now })
 
-            const matchesStatus =
-                status === "Todos" || order.estado === status
-
-            const days = Number(date)
-            const matchesDate =
-                date === "Todas" ||
-                (order.fechaISO &&
-                    (Date.now() - new Date(order.fechaISO).getTime()) /
-                        (1000 * 60 * 60 * 24) <= days &&
-                    new Date(order.fechaISO).getTime() <= Date.now())
-
-            return matchesSearch && matchesStatus && matchesDate
-        })
-    }, [orders, search, status, date])
-
-    const totalPages = Math.max(1, Math.ceil(filteredOrders.length / PAGE_SIZE))
-    const currentPage = Math.min(page, totalPages)
-
-    const pageOrders = filteredOrders.slice(
-        (currentPage - 1) * PAGE_SIZE,
-        currentPage * PAGE_SIZE
-    )
-
-    const start = filteredOrders.length === 0
-        ? 0
-        : (currentPage - 1) * PAGE_SIZE + 1
-
-    const end = Math.min(currentPage * PAGE_SIZE, filteredOrders.length)
+    // Paginación: si cambia algún filtro, vuelve a la página 1
+    const {
+        page,
+        totalPages,
+        pageItems: pageOrders,
+        setPage,
+        start,
+        end,
+        total,
+    } = usePagination(filteredOrders, {
+        pageSize: PAGE_SIZE,
+        resetKey: `${search}|${status}|${date}`,
+    })
 
     const clearFilters = () => {
         setSearch("")
         setStatus("Todos")
         setDate("Todas")
-        setPage(1)
         setSelectedIds([])
     }
 
     const toggleOrder = (id) => {
         setSelectedIds((current) =>
-            current.includes(id)
-                ? current.filter((selectedId) => selectedId !== id)
-                : [...current, id]
+            current.includes(id) ? current.filter((selectedId) => selectedId !== id) : [...current, id],
         )
     }
 
@@ -81,9 +58,7 @@ export default function Orders() {
         const allSelected = pageIds.every((id) => selectedIds.includes(id))
 
         setSelectedIds((current) =>
-            allSelected
-                ? current.filter((id) => !pageIds.includes(id))
-                : [...new Set([...current, ...pageIds])]
+            allSelected ? current.filter((id) => !pageIds.includes(id)) : [...new Set([...current, ...pageIds])],
         )
     }
 
@@ -94,11 +69,7 @@ export default function Orders() {
 
     const updateStatus = (newStatus) => {
         setOrders((current) =>
-            current.map((order) =>
-                order.id === selectedOrder.id
-                    ? { ...order, estado: newStatus }
-                    : order
-            )
+            current.map((order) => (order.id === selectedOrder.id ? { ...order, estado: newStatus } : order)),
         )
 
         setSelectedOrder((current) => ({
@@ -110,13 +81,7 @@ export default function Orders() {
     }
 
     const markAsSent = (order) => {
-        setOrders((current) =>
-            current.map((item) =>
-                item.id === order.id
-                    ? { ...item, estado: "Enviado" }
-                    : item
-            )
-        )
+        setOrders((current) => current.map((item) => (item.id === order.id ? { ...item, estado: "Enviado" } : item)))
     }
 
     return (
@@ -127,27 +92,16 @@ export default function Orders() {
                 Pedidos
             </SectionTitle>
 
-            <p className="mt-2 text-sm text-slate-600 md:text-base">
-                Gestiona los pedidos y su estado de seguimiento.
-            </p>
+            <p className="mt-2 text-sm text-slate-600 md:text-base">Gestiona los pedidos y su estado de seguimiento.</p>
 
             <div className="mt-6">
                 <OrderFilters
                     search={search}
-                    onSearchChange={(value) => {
-                        setSearch(value)
-                        setPage(1)
-                    }}
+                    onSearchChange={setSearch}
                     status={status}
-                    onStatusChange={(value) => {
-                        setStatus(value)
-                        setPage(1)
-                    }}
+                    onStatusChange={setStatus}
                     date={date}
-                    onDateChange={(value) => {
-                        setDate(value)
-                        setPage(1)
-                    }}
+                    onDateChange={setDate}
                     onClear={clearFilters}
                 />
             </div>
@@ -157,71 +111,47 @@ export default function Orders() {
                 selectedIds={selectedIds}
                 onToggle={toggleOrder}
                 onToggleAll={toggleAll}
-                page={currentPage}
+                page={page}
                 totalPages={totalPages}
                 onPageChange={setPage}
                 onView={(order) => openOrder(order)}
                 onEdit={(order) => openOrder(order, true)}
                 onShip={markAsSent}
-                total={filteredOrders.length}
+                total={total}
                 start={start}
                 end={end}
             />
 
-            {selectedOrder && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4">
-                    <section
-                        role="dialog"
-                        aria-modal="true"
-                        aria-labelledby="order-modal-title"
-                        className="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl"
-                    >
-                        <div className="flex items-start justify-between gap-4">
+            {/* Detalle o edición del pedido seleccionado */}
+            <Modal
+                open={selectedOrder !== null}
+                onClose={() => setSelectedOrder(null)}
+                title={editMode ? "Editar estado" : "Detalle del pedido"}
+            >
+                {selectedOrder && (
+                    <>
+                        <div className="space-y-4 overflow-y-auto px-5 py-5 text-sm md:px-6">
                             <div>
-                                <p className="text-sm text-slate-500">
-                                    Pedido #{selectedOrder.id}
-                                </p>
-                                <h2
-                                    id="order-modal-title"
-                                    className="mt-1 text-xl font-bold text-secondary"
-                                >
-                                    {editMode ? "Editar estado" : "Detalle del pedido"}
-                                </h2>
+                                <p className="text-slate-500">N° de pedido</p>
+                                <p className="mt-1 font-medium text-secondary">#{selectedOrder.id}</p>
                             </div>
 
-                            <button
-                                type="button"
-                                onClick={() => setSelectedOrder(null)}
-                                aria-label="Cerrar"
-                                className="text-slate-500 hover:text-secondary"
-                            >
-                                <X className="size-5" />
-                            </button>
-                        </div>
-
-                        <div className="mt-6 space-y-4 text-sm">
                             <div>
                                 <p className="text-slate-500">Cliente</p>
-                                <p className="mt-1 font-medium text-secondary">
-                                    {selectedOrder.cliente}
-                                </p>
+                                <p className="mt-1 font-medium text-secondary">{selectedOrder.cliente}</p>
                             </div>
 
                             <div>
                                 <p className="text-slate-500">Fecha</p>
-                                <p className="mt-1 font-medium text-secondary">
-                                    {selectedOrder.fecha}
-                                </p>
+                                <p className="mt-1 font-medium text-secondary">{selectedOrder.fecha}</p>
                             </div>
 
                             <div>
                                 <p className="text-slate-500">Productos</p>
                                 <ul className="mt-1 list-inside list-disc text-secondary">
-                                    {(selectedOrder.productos ?? ["Sin detalle de productos"]).map(
-                                        (product, index) => (
-                                            <li key={`${product}-${index}`}>{product}</li>
-                                        )
-                                    )}
+                                    {(selectedOrder.productos ?? ["Sin detalle de productos"]).map((product, index) => (
+                                        <li key={`${product}-${index}`}>{product}</li>
+                                    ))}
                                 </ul>
                             </div>
 
@@ -239,24 +169,25 @@ export default function Orders() {
 
                             {editMode && (
                                 <label className="block">
-                                    <span className="mb-2 block font-medium text-secondary">
-                                        Cambiar estado
-                                    </span>
+                                    <span className="mb-2 block font-medium text-secondary">Cambiar estado</span>
 
                                     <select
+                                        data-autofocus
                                         value={selectedOrder.estado}
                                         onChange={(event) => updateStatus(event.target.value)}
                                         className="w-full rounded-lg border border-slate-200 px-3 py-3 text-sm outline-none focus:border-primary"
                                     >
-                                        <option value="En preparación">En preparación</option>
-                                        <option value="Enviado">Enviado</option>
-                                        <option value="Entregado">Entregado</option>
+                                        {orderStatuses.map((s) => (
+                                            <option key={s} value={s}>
+                                                {s}
+                                            </option>
+                                        ))}
                                     </select>
                                 </label>
                             )}
                         </div>
 
-                        <div className="mt-6 flex justify-end">
+                        <div className="flex justify-end border-t border-gray-200 px-5 py-4 md:px-6">
                             <button
                                 type="button"
                                 onClick={() => setSelectedOrder(null)}
@@ -265,9 +196,9 @@ export default function Orders() {
                                 Cerrar
                             </button>
                         </div>
-                    </section>
-                </div>
-            )}
+                    </>
+                )}
+            </Modal>
         </>
     )
 }

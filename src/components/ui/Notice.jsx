@@ -9,12 +9,7 @@ export default function Notice({ children, onClose }) {
         >
             <p>{children}</p>
 
-            <button
-                type="button"
-                onClick={onClose}
-                aria-label="Cerrar aviso"
-                className="shrink-0 hover:text-green-900"
-            >
+            <button type="button" onClick={onClose} aria-label="Cerrar aviso" className="shrink-0 hover:text-green-900">
                 <X className="size-4" />
             </button>
         </div>

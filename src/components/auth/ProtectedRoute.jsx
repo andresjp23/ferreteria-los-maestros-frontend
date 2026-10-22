@@ -1,17 +1,18 @@
-import { Navigate, Outlet } from "react-router";
-import {useAuth} from "../../context/AuthContext";
-import {homeByRole} from "../../utils/roles";
+import { Navigate, Outlet, useLocation } from "react-router"
+import useAuth from "../../hooks/useAuth"
+import { homeByRole } from "../../utils/roles"
 
-// envuelve un grupo de rutas y decide si deja pasar
-// allowedRoles: Lista de rolas que pueden entrar, por ejemplo "admdin"
-export default function ProtectedRoute({allowedRoles}){
-    const {user} = useAuth()
+// Envuelve un grupo de rutas y decide si deja pasar.
+// allowedRoles: lista de roles que pueden entrar, por ejemplo ["admin"]
+export default function ProtectedRoute({ allowedRoles }) {
+    const { user } = useAuth()
+    const location = useLocation()
 
-    // Sin sesion, al login
-    if (!user){
-        return <Navigate to="/login" replace />
+    // Sin sesión, al login. Se guarda la página que intentaba abrir para volver después.
+    if (!user) {
+        return <Navigate to="/login" replace state={{ from: location }} />
     }
-    
+
     // Con sesión pero con un rol que no corresponde: lo devuelve a la página de su propio rol
     if (!allowedRoles.includes(user.rol)) {
         return <Navigate to={homeByRole[user.rol]} replace />

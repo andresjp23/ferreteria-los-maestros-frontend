@@ -2,17 +2,12 @@ import { useRef, useState } from "react"
 import { categories } from "../../../mocks/categories"
 import { brands } from "../../../mocks/brands"
 import { products } from "../../../mocks/products"
-import { Field, SelectBox, inputClass } from "../FormField"
-import {
-    DESCRIPTION_MAX,
-    emptyProduct,
-    validateField,
-    validateProduct,
-} from "../../../utils/productValidation"
+import { Field, SelectBox } from "../FormField"
+import { inputClass } from "../inputClass"
+import { DESCRIPTION_MAX, emptyProduct, validateField, validateProduct } from "../../../utils/productValidation"
 
 // Unidades disponibles: las que ya existen en el catálogo, sin repetir y ordenadas
 const units = [...new Set(products.map((p) => p.unidad))].sort((a, b) => a.localeCompare(b, "es"))
-
 
 export default function AddProductForm({ onCancel, onSubmit }) {
     // Lo que el usuario escribe y los errores de cada campo ({} = sin errores)
@@ -115,30 +110,60 @@ export default function AddProductForm({ onCancel, onSubmit }) {
                 </p>
 
                 <div className="grid gap-5 md:grid-cols-2">
-                    <Field name="codigo" label="Código" required error={errors.codigo} hint="2 letras y 3 números. Ej.: MC001">
-                        <input type="text" autoComplete="off" placeholder="MC001" data-autofocus {...fieldProps("codigo")} />
+                    <Field
+                        name="codigo"
+                        label="Código"
+                        required
+                        error={errors.codigo}
+                        hint="2 letras y 3 números. Ej.: MC001"
+                    >
+                        <input
+                            type="text"
+                            autoComplete="off"
+                            placeholder="MC001"
+                            data-autofocus
+                            {...fieldProps("codigo")}
+                        />
                     </Field>
 
                     <Field name="nombre" label="Nombre del producto" required error={errors.nombre}>
-                        <input type="text" autoComplete="off" placeholder="Ej.: Cemento gris 25 kg" {...fieldProps("nombre")} />
+                        <input
+                            type="text"
+                            autoComplete="off"
+                            placeholder="Ej.: Cemento gris 25 kg"
+                            {...fieldProps("nombre")}
+                        />
                     </Field>
 
                     <Field name="categoria" label="Categoría" required error={errors.categoria}>
                         <SelectBox {...fieldProps("categoria")}>
                             <option value="">Selecciona una categoría</option>
                             {categories.map((c) => (
-                                <option key={c.id} value={c.id}>{c.nombre}</option>
+                                <option key={c.id} value={c.id}>
+                                    {c.nombre}
+                                </option>
                             ))}
                         </SelectBox>
                     </Field>
 
                     <Field name="subcategoria" label="Subcategoría" required error={errors.subcategoria}>
-                        <input type="text" autoComplete="off" placeholder="Ej.: Cementos" {...fieldProps("subcategoria")} />
+                        <input
+                            type="text"
+                            autoComplete="off"
+                            placeholder="Ej.: Cementos"
+                            {...fieldProps("subcategoria")}
+                        />
                     </Field>
 
                     <Field name="marca" label="Marca" required error={errors.marca}>
                         {/* list + datalist: sugiere las marcas existentes, pero permite escribir otra */}
-                        <input type="text" autoComplete="off" list="brands-list" placeholder="Ej.: Stanley" {...fieldProps("marca")} />
+                        <input
+                            type="text"
+                            autoComplete="off"
+                            list="brands-list"
+                            placeholder="Ej.: Stanley"
+                            {...fieldProps("marca")}
+                        />
                         <datalist id="brands-list">
                             {brands.map((brand) => (
                                 <option key={brand} value={brand} />
@@ -150,31 +175,79 @@ export default function AddProductForm({ onCancel, onSubmit }) {
                         <SelectBox {...fieldProps("unidad")}>
                             <option value="">Selecciona una unidad</option>
                             {units.map((unit) => (
-                                <option key={unit} value={unit}>{unit}</option>
+                                <option key={unit} value={unit}>
+                                    {unit}
+                                </option>
                             ))}
                         </SelectBox>
                     </Field>
 
                     {/* type="text" con inputMode="numeric": en el celular abre el teclado numérico,
                         pero así podemos mostrar nuestro propio mensaje si escriben letras */}
-                    <Field name="precioCompra" label="Precio de compra ($)" required error={errors.precioCompra} hint="Número entero, sin puntos.">
-                        <input type="text" inputMode="numeric" autoComplete="off" placeholder="Ej.: 3500" {...fieldProps("precioCompra")} />
+                    <Field
+                        name="precioCompra"
+                        label="Precio de compra ($)"
+                        required
+                        error={errors.precioCompra}
+                        hint="Número entero, sin puntos."
+                    >
+                        <input
+                            type="text"
+                            inputMode="numeric"
+                            autoComplete="off"
+                            placeholder="Ej.: 3500"
+                            {...fieldProps("precioCompra")}
+                        />
                     </Field>
 
-                    <Field name="precioVenta" label="Precio de venta ($)" required error={errors.precioVenta} hint="Número entero, sin puntos.">
-                        <input type="text" inputMode="numeric" autoComplete="off" placeholder="Ej.: 4990" {...fieldProps("precioVenta")} />
+                    <Field
+                        name="precioVenta"
+                        label="Precio de venta ($)"
+                        required
+                        error={errors.precioVenta}
+                        hint="Número entero, sin puntos."
+                    >
+                        <input
+                            type="text"
+                            inputMode="numeric"
+                            autoComplete="off"
+                            placeholder="Ej.: 4990"
+                            {...fieldProps("precioVenta")}
+                        />
                     </Field>
 
                     <Field name="stock" label="Stock inicial" required error={errors.stock}>
-                        <input type="text" inputMode="numeric" autoComplete="off" placeholder="Ej.: 120" {...fieldProps("stock")} />
+                        <input
+                            type="text"
+                            inputMode="numeric"
+                            autoComplete="off"
+                            placeholder="Ej.: 120"
+                            {...fieldProps("stock")}
+                        />
                     </Field>
 
                     <Field name="stockMinimo" label="Stock mínimo" required error={errors.stockMinimo}>
-                        <input type="text" inputMode="numeric" autoComplete="off" placeholder="Ej.: 20" {...fieldProps("stockMinimo")} />
+                        <input
+                            type="text"
+                            inputMode="numeric"
+                            autoComplete="off"
+                            placeholder="Ej.: 20"
+                            {...fieldProps("stockMinimo")}
+                        />
                     </Field>
 
-                    <Field name="descripcion" label="Descripción" error={errors.descripcion} hint="Opcional." className="md:col-span-2">
-                        <textarea rows={3} placeholder="Ej.: Cemento de alta resistencia." {...fieldProps("descripcion")} />
+                    <Field
+                        name="descripcion"
+                        label="Descripción"
+                        error={errors.descripcion}
+                        hint="Opcional."
+                        className="md:col-span-2"
+                    >
+                        <textarea
+                            rows={3}
+                            placeholder="Ej.: Cemento de alta resistencia."
+                            {...fieldProps("descripcion")}
+                        />
                         {/* Contador: se pone rojo si se pasa del máximo */}
                         <p
                             className={`mt-1 text-right text-xs ${
@@ -186,7 +259,13 @@ export default function AddProductForm({ onCancel, onSubmit }) {
                     </Field>
 
                     {/* El input de archivo no se puede "controlar" con value, por eso va aparte */}
-                    <Field name="imagen" label="Imagen" error={errors.imagen} hint="Opcional. JPG, PNG o WEBP, máximo 2 MB." className="md:col-span-2">
+                    <Field
+                        name="imagen"
+                        label="Imagen"
+                        error={errors.imagen}
+                        hint="Opcional. JPG, PNG o WEBP, máximo 2 MB."
+                        className="md:col-span-2"
+                    >
                         <input
                             ref={fileInputRef}
                             id="product-imagen"
@@ -216,9 +295,7 @@ export default function AddProductForm({ onCancel, onSubmit }) {
             <div className="border-t border-gray-200 px-5 py-4 md:px-6">
                 {errorCount > 0 && (
                     <p role="alert" className="mb-3 text-sm text-red-600">
-                        {errorCount === 1
-                            ? "Revisa el campo con error."
-                            : `Revisa los ${errorCount} campos con error.`}
+                        {errorCount === 1 ? "Revisa el campo con error." : `Revisa los ${errorCount} campos con error.`}
                     </p>
                 )}
 

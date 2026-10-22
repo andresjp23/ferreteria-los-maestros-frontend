@@ -6,10 +6,7 @@ import { brands } from "../../mocks/brands"
 // Grupo colapsable: título + flecha + contenido
 function FilterGroup({ title, defaultOpen = false, children }) {
     return (
-        <details
-            open={defaultOpen}
-            className="group border-b border-gray-200 py-4 last:border-b-0"
-        >
+        <details open={defaultOpen} className="group border-b border-gray-200 py-4 last:border-b-0">
             <summary className="flex cursor-pointer list-none items-center justify-between text-sm font-semibold text-secondary [&::-webkit-details-marker]:hidden">
                 {title}
                 <ChevronDown className="size-4 transition-transform group-open:rotate-180" />
@@ -21,13 +18,18 @@ function FilterGroup({ title, defaultOpen = false, children }) {
 }
 
 export default function FiltersSidebar({
-    selectedCategories, onCategoryChange,
-    selectedBrands, onBrandChange,
-    onlyInStock, onStockChange,
-    minPrice, onMinPriceChange,
-    maxPrice, onMaxPriceChange,
-    onClear
-    }) {
+    selectedCategories,
+    onCategoryChange,
+    selectedBrands,
+    onBrandChange,
+    onlyInStock,
+    onStockChange,
+    minPrice,
+    onMinPriceChange,
+    maxPrice,
+    onMaxPriceChange,
+    onClear,
+}) {
     const [isOpen, setIsOpen] = useState(false)
 
     return (
@@ -50,107 +52,108 @@ export default function FiltersSidebar({
                 id="product-filters"
                 className={`${isOpen ? "block" : "hidden"} mt-3 rounded-xl border border-gray-200 bg-white shadow-sm xl:mt-0 xl:block`}
             >
-            {/* Encabezado */}
-            <div className="hidden items-center gap-3 border-b border-gray-200 px-5 py-4 xl:flex">
-                <SlidersHorizontal className="size-5 text-primary" />
-                <h2 className="text-lg font-bold text-secondary">Filtros</h2>
-            </div>
+                {/* Encabezado */}
+                <div className="hidden items-center gap-3 border-b border-gray-200 px-5 py-4 xl:flex">
+                    <SlidersHorizontal className="size-5 text-primary" />
+                    <h2 className="text-lg font-bold text-secondary">Filtros</h2>
+                </div>
 
-            <div className="px-5">
-                {/* Categorías */}
-                <FilterGroup title="Categorías">
-                    <div className="flex flex-col gap-2">
-                        {/* Aquí irá tu map. Ejemplo de una opción: */}
-                        {categories.map(categorie => 
-                            <label 
-                                key={categorie.id}
-                                className="flex cursor-pointer items-center gap-3 text-sm text-gray-700">
+                <div className="px-5">
+                    {/* Categorías */}
+                    <FilterGroup title="Categorías">
+                        <div className="flex flex-col gap-2">
+                            {categories.map((category) => (
+                                <label
+                                    key={category.id}
+                                    className="flex cursor-pointer items-center gap-3 text-sm text-gray-700"
+                                >
+                                    <input
+                                        type="checkbox"
+                                        className="size-4 accent-primary"
+                                        checked={selectedCategories.includes(category.id)}
+                                        onChange={() => onCategoryChange(category.id)}
+                                    />
+                                    {category.nombre}
+                                </label>
+                            ))}
+                        </div>
+                    </FilterGroup>
+
+                    {/* Precio */}
+                    <FilterGroup title="Precio">
+                        <div className="grid grid-cols-2 gap-3">
+                            <label className="flex items-center gap-1 rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-500 focus-within:border-primary">
+                                $
                                 <input
-                                    type="checkbox"
-                                    className="size-4 accent-primary"
-                                    checked={selectedCategories.includes(categorie.id)}
-                                    onChange={() => onCategoryChange(categorie.id)} 
+                                    type="number"
+                                    min="0"
+                                    value={minPrice}
+                                    aria-label="Precio mínimo"
+                                    onChange={(event) => onMinPriceChange(event.target.value)}
+                                    placeholder="Mín."
+                                    className="w-full min-w-0 bg-transparent text-gray-800 outline-none placeholder:text-gray-400"
                                 />
-                                {categorie.nombre}
-                             </label>
-                        )}
-                    </div>
-                </FilterGroup>
+                            </label>
+                            <label className="flex items-center gap-1 rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-500 focus-within:border-primary">
+                                $
+                                <input
+                                    type="number"
+                                    min="0"
+                                    value={maxPrice}
+                                    aria-label="Precio máximo"
+                                    onChange={(event) => onMaxPriceChange(event.target.value)}
+                                    placeholder="Máx."
+                                    className="w-full min-w-0 bg-transparent text-gray-800 outline-none placeholder:text-gray-400"
+                                />
+                            </label>
+                        </div>
+                    </FilterGroup>
 
-                {/* Precio */}
-                <FilterGroup title="Precio">
-                    <div className="grid grid-cols-2 gap-3">
-                        <label className="flex items-center gap-1 rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-500 focus-within:border-primary">
-                            $
+                    {/* Marca: lista con scroll porque hay 31 marcas */}
+                    <FilterGroup title="Marca">
+                        <div className="flex flex-col gap-2">
+                            {brands.map((brand) => (
+                                <label
+                                    key={brand}
+                                    className="flex cursor-pointer items-center gap-3 text-sm text-gray-700"
+                                >
+                                    <input
+                                        type="checkbox"
+                                        className="size-4 accent-primary"
+                                        checked={selectedBrands.includes(brand)}
+                                        onChange={() => onBrandChange(brand)}
+                                    />
+                                    {brand}
+                                </label>
+                            ))}
+                        </div>
+                    </FilterGroup>
+
+                    {/* Disponibilidad */}
+                    <FilterGroup title="Disponibilidad">
+                        <label className="flex cursor-pointer items-center gap-3 text-sm text-gray-700">
                             <input
-                                type="number"
-                                min="0"
-                                value={minPrice}
-                                onChange={(event) => onMinPriceChange(event.target.value)}
-                                placeholder="Mín."
-                                className="w-full min-w-0 bg-transparent text-gray-800 outline-none placeholder:text-gray-400"
+                                type="checkbox"
+                                checked={onlyInStock}
+                                className="size-4 accent-primary"
+                                onChange={() => onStockChange()}
                             />
+                            En stock
                         </label>
-                        <label className="flex items-center gap-1 rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-500 focus-within:border-primary">
-                            $
-                            <input
-                                type="number"
-                                min="0"
-                                value={maxPrice}
-                                onChange={(event => onMaxPriceChange(event.target.value))}
-                                placeholder="Máx."
-                                className="w-full min-w-0 bg-transparent text-gray-800 outline-none placeholder:text-gray-400"
-                            />
-                        </label>
-                    </div>
+                    </FilterGroup>
+                </div>
 
-
-                </FilterGroup>
-
-                {/* Marca: lista con scroll porque hay 31 marcas */}
-                <FilterGroup title="Marca">
-                    <div className="flex flex-col gap-2">
-                        {/* Aquí irá tu map. Ejemplo de una opción: */}
-                        {brands.map(brand => 
-                            <label 
-                                key={brand}
-                                className="flex cursor-pointer items-center gap-3 text-sm text-gray-700">
-                                <input 
-                                    type="checkbox" 
-                                    className="size-4 accent-primary" 
-                                    checked={selectedBrands.includes(brand)}
-                                    onChange={() => onBrandChange(brand)}  />
-                                {brand}
-                             </label>
-                        )}
-                    </div>
-                </FilterGroup>
-
-                {/* Disponibilidad */}
-                <FilterGroup title="Disponibilidad">
-                    <label className="flex cursor-pointer items-center gap-3 text-sm text-gray-700">
-                        <input 
-                            type="checkbox"
-                            checked={onlyInStock}
-                            className="size-4 accent-primary"
-                            onChange={() => onStockChange()} 
-                        />
-                        En stock
-                    </label>
-                </FilterGroup>
-            </div>
-
-            {/* Limpiar filtros */}
-            <div className="px-5 pb-5 pt-2">
-                <button
-                    type="button"
-                    onClick={onClear}
-                    className="flex w-full items-center justify-center gap-2 rounded-lg border border-primary px-4 py-2.5 text-sm font-semibold text-primary transition hover:bg-primary hover:text-white"
-                >
-                    <RefreshCw className="size-4" />
-                    Limpiar filtros
-                </button>
-            </div>
+                {/* Limpiar filtros */}
+                <div className="px-5 pb-5 pt-2">
+                    <button
+                        type="button"
+                        onClick={onClear}
+                        className="flex w-full items-center justify-center gap-2 rounded-lg border border-primary px-4 py-2.5 text-sm font-semibold text-primary transition hover:bg-primary hover:text-white"
+                    >
+                        <RefreshCw className="size-4" />
+                        Limpiar filtros
+                    </button>
+                </div>
             </div>
         </aside>
     )

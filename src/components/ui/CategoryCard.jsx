@@ -1,23 +1,15 @@
 export default function CategoryCard({ title, icon, image }) {
     return (
-        <article
-            className="group relative flex min-h-48 overflow-hidden rounded-xl bg-secondary"
-        >
+        <article className="group relative flex min-h-48 overflow-hidden rounded-xl bg-secondary">
             {/* Imagen de fondo (parte derecha) */}
-            <img
-                src={image}
-                alt=""
-                className="absolute inset-y-0 right-0 h-full w-3/5 object-cover"
-            />
+            <img src={image} alt="" loading="lazy" className="absolute inset-y-0 right-0 h-full w-3/5 object-cover" />
 
             {/* Degradado: cubre el borde izquierdo de la imagen para que se funda con el fondo */}
             <div className="absolute inset-y-0 right-0 w-3/5 bg-linear-to-r from-secondary to-transparent" />
 
             {/* Contenido (parte izquierda) */}
             <div className="relative flex flex-col justify-between gap-6 p-6">
-                <div className="size-16 text-primary [&>svg]:size-full">
-                    {icon}
-                </div>
+                <div className="size-16 text-primary [&>svg]:size-full">{icon}</div>
 
                 <div className="flex flex-col gap-3">
                     <h3 className="text-lg font-semibold text-white">{title}</h3>

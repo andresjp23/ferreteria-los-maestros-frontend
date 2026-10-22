@@ -1,5 +1,5 @@
-import Button from "../ui/Button";
-import heroImage from "../../assets/hero-image.png";
+import Button from "../ui/Button"
+import heroImage from "../../assets/hero-image.webp"
 
 export default function Hero() {
     return (
@@ -20,9 +20,7 @@ export default function Hero() {
                     Calidad, variedad y el mejor servicio para tus proyectos, grandes o pequeños.
                 </p>
 
-                <Button 
-                    content="Ver Productos"
-                />
+                <Button to="/productos">Ver productos</Button>
             </div>
 
             {/* Parte derecha: fondo en móvil/tablet, columna en escritorio */}

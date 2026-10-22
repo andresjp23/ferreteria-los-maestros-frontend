@@ -1,12 +1,9 @@
 import { useState } from "react"
 import { Eye, EyeOff } from "lucide-react"
-import { roleLabels } from "../../../utils/roles"
+import { roleLabels, roles, userStatuses } from "../../../utils/roles"
 import { emptyUser, validateField, validateUser } from "../../../utils/userValidations"
-import { Field, SelectBox, inputClass } from "../FormField"
-
-// Opciones de los selectos
-const roleOptions = ["admin", "vendedor", "cliente"]
-const statusOptions = ["Activo", "Inactivo"]
+import { Field, SelectBox } from "../FormField"
+import { inputClass } from "../inputClass"
 
 // Field con el prefijo "user": los id quedan user-nombre, user-email...
 const UserField = (props) => <Field prefix="user" {...props} />
@@ -124,26 +121,47 @@ export default function AddUserForm({ onCancel, onSubmit }) {
                         hint="Nombre y apellido. Solo letras."
                         className="md:col-span-2"
                     >
-                        <input type="text" autoComplete="off" placeholder="Ej.: María González" data-autofocus {...fieldProps("nombre")} />
+                        <input
+                            type="text"
+                            autoComplete="off"
+                            placeholder="Ej.: María González"
+                            data-autofocus
+                            {...fieldProps("nombre")}
+                        />
                     </UserField>
 
-                    <UserField name="email" label="Correo electrónico" required error={errors.email} className="md:col-span-2">
-                        <input type="email" autoComplete="off" placeholder="nombre@dominio.cl" {...fieldProps("email")} />
+                    <UserField
+                        name="email"
+                        label="Correo electrónico"
+                        required
+                        error={errors.email}
+                        className="md:col-span-2"
+                    >
+                        <input
+                            type="email"
+                            autoComplete="off"
+                            placeholder="nombre@dominio.cl"
+                            {...fieldProps("email")}
+                        />
                     </UserField>
 
                     <UserField name="rol" label="Rol" required error={errors.rol}>
                         <SelectBox {...fieldProps("rol")}>
                             <option value="">Selecciona un rol</option>
-                            {roleOptions.map((role) => (
-                                <option key={role} value={role}>{roleLabels[role]}</option>
+                            {roles.map((role) => (
+                                <option key={role} value={role}>
+                                    {roleLabels[role]}
+                                </option>
                             ))}
                         </SelectBox>
                     </UserField>
 
                     <UserField name="estado" label="Estado" required error={errors.estado}>
                         <SelectBox {...fieldProps("estado")}>
-                            {statusOptions.map((status) => (
-                                <option key={status} value={status}>{status}</option>
+                            {userStatuses.map((status) => (
+                                <option key={status} value={status}>
+                                    {status}
+                                </option>
                             ))}
                         </SelectBox>
                     </UserField>
@@ -158,7 +176,12 @@ export default function AddUserForm({ onCancel, onSubmit }) {
                         {passwordInput("password", "Crea una contraseña")}
                     </UserField>
 
-                    <UserField name="confirmPassword" label="Confirmar contraseña" required error={errors.confirmPassword}>
+                    <UserField
+                        name="confirmPassword"
+                        label="Confirmar contraseña"
+                        required
+                        error={errors.confirmPassword}
+                    >
                         {passwordInput("confirmPassword", "Repite la contraseña")}
                     </UserField>
                 </div>
@@ -168,9 +191,7 @@ export default function AddUserForm({ onCancel, onSubmit }) {
             <div className="border-t border-gray-200 px-5 py-4 md:px-6">
                 {errorCount > 0 && (
                     <p role="alert" className="mb-3 text-sm text-red-600">
-                        {errorCount === 1
-                            ? "Revisa el campo con error."
-                            : `Revisa los ${errorCount} campos con error.`}
+                        {errorCount === 1 ? "Revisa el campo con error." : `Revisa los ${errorCount} campos con error.`}
                     </p>
                 )}
 

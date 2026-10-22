@@ -19,7 +19,7 @@ La aplicación implementa una demostración frontend para la EP2 de DSY1104. Usa
 Requiere Node.js `^20.19.0` o `>=22.12.0` y npm compatible. Desde la raíz del repositorio:
 
 ```bash
-cd frontend/ferreteria-los-maestros
+cd frontend
 npm install
 npm run dev
 ```

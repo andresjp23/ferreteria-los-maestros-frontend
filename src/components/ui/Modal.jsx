@@ -26,6 +26,8 @@ export default function Modal({ open, onClose, title, children }) {
     }, [open])
 
     return (
+        // El clic en el fondo es un atajo con mouse: con teclado, Esc cierra el <dialog> de forma nativa
+        // oxlint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions
         <dialog
             ref={dialogRef}
             aria-label={title}

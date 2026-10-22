@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { render, screen } from "@testing-library/react"
 import { MemoryRouter, Route, Routes } from "react-router"
-import { AuthProvider } from "../../context/AuthContext"
+import { AuthProvider } from "../../context/AuthProvider"
 import ProtectedRoute from "./ProtectedRoute"
 
 function renderProtectedRoute(initialEntry) {
@@ -27,12 +27,15 @@ describe("rutas protegidas", () => {
     })
 
     it("redirige al usuario con rol no autorizado a la página de su rol", () => {
-        localStorage.setItem("auth_user", JSON.stringify({
-            id: 1,
-            nombre: "Cliente de prueba",
-            email: "cliente@example.cl",
-            rol: "cliente",
-        }))
+        localStorage.setItem(
+            "auth_user",
+            JSON.stringify({
+                id: 1,
+                nombre: "Cliente de prueba",
+                email: "cliente@example.cl",
+                rol: "cliente",
+            }),
+        )
 
         renderProtectedRoute("/admin")
         expect(screen.getByText("Client home")).toBeInTheDocument()
@@ -40,12 +43,15 @@ describe("rutas protegidas", () => {
     })
 
     it("permite el acceso cuando el rol está autorizado", () => {
-        localStorage.setItem("auth_user", JSON.stringify({
-            id: 3,
-            nombre: "Admin de prueba",
-            email: "admin@example.cl",
-            rol: "admin",
-        }))
+        localStorage.setItem(
+            "auth_user",
+            JSON.stringify({
+                id: 3,
+                nombre: "Admin de prueba",
+                email: "admin@example.cl",
+                rol: "admin",
+            }),
+        )
 
         renderProtectedRoute("/admin")
         expect(screen.getByText("Admin dashboard")).toBeInTheDocument()

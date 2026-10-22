@@ -26,8 +26,8 @@ COBERTURA_TESTING_EP2.md
 *.sw?
 
 # carpetas locales
+# originals/: copia de las imágenes sin optimizar que deja `npm run images`
 data/
 /docs/*
 !/docs/documento-ferreteria-los-maestros.md
-scripts/
 originals/

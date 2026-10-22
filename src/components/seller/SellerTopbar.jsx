@@ -1,6 +1,5 @@
-
 import { Menu, User } from "lucide-react"
-import { useAuth } from "../../context/AuthContext"
+import useAuth from "../../hooks/useAuth"
 import { roleLabels } from "../../utils/roles"
 
 export default function SellerTopbar({ onMenuClick }) {
@@ -8,12 +7,7 @@ export default function SellerTopbar({ onMenuClick }) {
 
     return (
         <header className="sticky top-0 z-20 flex h-16 items-center gap-4 border-b border-gray-200 bg-white px-6 md:px-10">
-            <button
-                type="button"
-                onClick={onMenuClick}
-                aria-label="Abrir menú"
-                className="text-secondary xl:hidden"
-            >
+            <button type="button" onClick={onMenuClick} aria-label="Abrir menú" className="text-secondary xl:hidden">
                 <Menu className="size-6" />
             </button>
 

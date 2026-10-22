@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import { render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { MemoryRouter, Route, Routes, useLocation, useNavigationType } from "react-router"
-import { CartProvider } from "../context/CartContext"
+import { CartProvider } from "../context/CartProvider"
 import Products from "./Products"
 
 function RouterState() {
@@ -11,7 +11,8 @@ function RouterState() {
 
     return (
         <output data-testid="router-state">
-            {location.pathname}{location.search}|{navigationType}
+            {location.pathname}
+            {location.search}|{navigationType}
         </output>
     )
 }
@@ -35,16 +36,14 @@ describe("búsqueda del catálogo", () => {
         await user.type(search, "taladro")
 
         expect(await screen.findByRole("heading", { name: "Taladro percutor 650W 13mm" })).toBeInTheDocument()
-        expect(screen.getByText("Mostrando 1 productos")).toBeInTheDocument()
+        expect(screen.getByText("Mostrando 1 de 1 producto")).toBeInTheDocument()
         expect(screen.getByTestId("router-state")).toHaveTextContent(
             "/productos?categoria=herramientas&q=taladro|REPLACE",
         )
 
         await user.clear(search)
         await waitFor(() => {
-            expect(screen.getByTestId("router-state")).toHaveTextContent(
-                "/productos?categoria=herramientas|REPLACE",
-            )
+            expect(screen.getByTestId("router-state")).toHaveTextContent("/productos?categoria=herramientas|REPLACE")
         })
         expect(screen.getByRole("heading", { name: "Taladro percutor 650W 13mm" })).toBeInTheDocument()
     })

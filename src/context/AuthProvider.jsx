@@ -1,20 +1,27 @@
-import { createContext, useContext, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { users } from "../mocks/users"
+import { homeByRole } from "../utils/roles"
+import { AuthContext } from "./authContext"
 
 // Nombre bajo el cual se guarda la sesión en el localStorage del navegador
 const STORAGE_KEY = "auth_user"
 
-// Crea el contexto (espacio compartido) de la sesión
-const AuthContext = createContext()
+// true si el objeto tiene la forma de una sesión válida y un rol conocido.
+// localStorage lo puede editar cualquiera, así que no se confía en lo que trae.
+const isValidUser = (value) =>
+    value !== null &&
+    typeof value === "object" &&
+    typeof value.nombre === "string" &&
+    typeof value.email === "string" &&
+    Object.hasOwn(homeByRole, value.rol)
 
 // Lee la sesión guardada.
-// Si no hay ninguna devuelve null, lo que significa que nadie ha iniciado sesion
+// Si no hay ninguna (o está corrupta) devuelve null, lo que significa que nadie ha iniciado sesion
 const loadUser = () => {
     try {
-        const saved = localStorage.getItem(STORAGE_KEY)
-
         // JSON.parse convierte el texto guardado de vuelta a un objeto de JavaScript
-        return saved ? JSON.parse(saved) : null
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY))
+        return isValidUser(saved) ? saved : null
     } catch {
         return null
     }
@@ -39,12 +46,12 @@ export function AuthProvider({ children }) {
     // Revisa el correo y la contraseña contra los usuarios mock.
     // Es async a propósito: en la fase 2 será una llamada al backend, que también tarda,
     // y así los componentes que la usan no tendrán que cambiar.
+    // IMPORTANTE: esta revisión en el navegador es solo para la demo. Con backend,
+    // la autenticación y los permisos por rol se validan en el servidor.
     const login = async (email, password) => {
         // find devuelve el primer usuario que cumple la condición, o undefined si ninguno la cumple.
         // El correo se limpia (espacios) y se pasa a minúsculas antes de comparar.
-        const found = users.find(
-            (u) => u.email === email.trim().toLowerCase() && u.password === password
-        )
+        const found = users.find((u) => u.email === email.trim().toLowerCase() && u.password === password)
 
         // No hubo coincidencia: avisa del error y no inicia sesión
         if (!found) {
@@ -71,14 +78,6 @@ export function AuthProvider({ children }) {
 
     return (
         // value: lo que queda disponible para los componentes que usen el contexto
-        <AuthContext.Provider value={{ user, login, logout }}>
-            {children}
-        </AuthContext.Provider>
+        <AuthContext.Provider value={{ user, login, logout }}>{children}</AuthContext.Provider>
     )
-}
-
-// Hook propio: atajo para acceder a la sesión desde cualquier componente
-// Uso:  const { user, login, logout } = useAuth()
-export function useAuth() {
-    return useContext(AuthContext)
 }

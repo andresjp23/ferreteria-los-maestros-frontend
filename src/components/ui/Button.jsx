@@ -1,25 +1,16 @@
 import { Link } from "react-router"
+import { ArrowRight } from "lucide-react"
 
-
-export default function Button({content}){
-    return(
+// Enlace con estilo de botón principal y flecha a la derecha.
+// Uso: <Button to="/productos">Ver productos</Button>
+export default function Button({ to, children }) {
+    return (
         <Link
-            to="/productos"
-            className="inline-flex items-center gap-2 self-start bg-primary text-white font-semibold px-6 py-3 rounded-lg hover:opacity-90 transition"
+            to={to}
+            className="inline-flex items-center gap-2 self-start rounded-lg bg-primary px-6 py-3 font-semibold text-white transition hover:opacity-90"
         >
-            {content}
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="w-5 h-5"
-            >
-                <path d="M5 12h14M13 6l6 6-6 6" />
-            </svg>
+            {children}
+            <ArrowRight className="size-5" />
         </Link>
     )
 }

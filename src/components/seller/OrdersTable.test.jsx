@@ -65,7 +65,10 @@ describe("tarjetas de pedidos del vendedor", () => {
         expect(callbacks.onView).toHaveBeenCalledWith(orders[0])
         expect(callbacks.onEdit).toHaveBeenCalledWith(orders[0])
         expect(callbacks.onShip).toHaveBeenCalledWith(orders[0])
-        expect(within(orderCard.getAllByRole("listitem")[1])
-            .getByRole("button", { name: "Marcar pedido 1041 como enviado" })).toBeDisabled()
+        expect(
+            within(orderCard.getAllByRole("listitem")[1]).getByRole("button", {
+                name: "Marcar pedido 1041 como enviado",
+            }),
+        ).toBeDisabled()
     })
 })

@@ -1,7 +1,7 @@
 import { orders } from "../../mocks/orders"
 import { formatPrice } from "../../utils/format"
-import SectionTitle from "./SectionTitle"
-import StatusBadge from "./StatusBadge"
+import SectionTitle from "../ui/SectionTitle"
+import StatusBadge from "../ui/StatusBadge"
 
 export default function RecentOrders() {
     return (
@@ -45,11 +45,21 @@ export default function RecentOrders() {
                 <table className="w-full min-w-136 text-left text-sm">
                     <thead className="bg-slate-50 text-gray-500">
                         <tr>
-                            <th scope="col" className="px-4 py-3 font-medium">N° Pedido</th>
-                            <th scope="col" className="px-4 py-3 font-medium">Cliente</th>
-                            <th scope="col" className="px-4 py-3 font-medium">Fecha</th>
-                            <th scope="col" className="px-4 py-3 font-medium">Estado</th>
-                            <th scope="col" className="px-4 py-3 font-medium">Total</th>
+                            <th scope="col" className="px-4 py-3 font-medium">
+                                N° Pedido
+                            </th>
+                            <th scope="col" className="px-4 py-3 font-medium">
+                                Cliente
+                            </th>
+                            <th scope="col" className="px-4 py-3 font-medium">
+                                Fecha
+                            </th>
+                            <th scope="col" className="px-4 py-3 font-medium">
+                                Estado
+                            </th>
+                            <th scope="col" className="px-4 py-3 font-medium">
+                                Total
+                            </th>
                         </tr>
                     </thead>
 
@@ -62,9 +72,7 @@ export default function RecentOrders() {
                                 <td className="px-4 py-4">
                                     <StatusBadge status={order.estado} />
                                 </td>
-                                <td className="px-4 py-4 font-medium text-secondary">
-                                    {formatPrice(order.total)}
-                                </td>
+                                <td className="px-4 py-4 font-medium text-secondary">{formatPrice(order.total)}</td>
                             </tr>
                         ))}
                     </tbody>

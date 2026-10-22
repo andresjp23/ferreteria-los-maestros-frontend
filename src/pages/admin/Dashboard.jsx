@@ -1,10 +1,10 @@
 import { Package, ShoppingCart, Users, CircleDollarSign } from "lucide-react"
 import { products } from "../../mocks/products"
 import { formatPrice } from "../../utils/format"
-import SectionTitle from "../../components/admin/SectionTitle"
+import SectionTitle from "../../components/ui/SectionTitle"
 import StatCard from "../../components/admin/StatCard"
 import RecentOrders from "../../components/admin/RecentOrders"
-import {adminUsers} from "../../mocks/adminUsers"
+import { adminUsers } from "../../mocks/adminUsers"
 
 // Indicadores. Solo "Productos en catálogo" es real (sale del catálogo);
 // los demás son de ejemplo hasta que haya backend.
@@ -20,7 +20,9 @@ export default function Dashboard() {
         <>
             <title>Panel de administración | Ferretería Los Maestros</title>
 
-            <SectionTitle as="h1" size="page">Panel de administración</SectionTitle>
+            <SectionTitle as="h1" size="page">
+                Panel de administración
+            </SectionTitle>
             <p className="mt-2 text-sm text-gray-600 md:text-base">
                 Resumen general de tu tienda y actividad reciente.
             </p>

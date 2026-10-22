@@ -1,7 +1,7 @@
 import { Link, NavLink, useNavigate } from "react-router"
 import { LayoutDashboard, Package, Users, LogOut, X } from "lucide-react"
-import { useAuth } from "../../context/AuthContext"
-import Logo from "../../assets/logo.png"
+import useAuth from "../../hooks/useAuth"
+import Logo from "../../assets/brand/logo.webp"
 
 // Secciones del panel. Para agregar o quitar una, se edita solo esta lista.
 const links = [
@@ -29,12 +29,7 @@ export default function AdminSidebar({ open, onClose }) {
     return (
         <>
             {/* Fondo oscuro detrás del menú (solo móvil y tablet): al tocarlo se cierra */}
-            {open && (
-                <div
-                    onClick={onClose}
-                    className="fixed inset-0 z-30 bg-black/50 xl:hidden"
-                />
-            )}
+            {open && <div aria-hidden="true" onClick={onClose} className="fixed inset-0 z-30 bg-black/50 xl:hidden" />}
 
             {/* Menú: en móvil y tablet entra deslizando desde la izquierda (-translate-x-full lo esconde).
                 Desde xl (xl:translate-x-0) siempre está visible. */}
@@ -46,7 +41,7 @@ export default function AdminSidebar({ open, onClose }) {
                 {/* Logo */}
                 <div className="flex h-16 items-center justify-between border-b border-white/10 px-5">
                     <Link to="/admin" onClick={onClose} className="flex items-center gap-3">
-                        <img src={Logo} alt="Logo" className="w-10 object-contain" />
+                        <img src={Logo} alt="" className="w-10 object-contain" />
                         <div className="text-sm font-extrabold uppercase leading-tight">
                             <p className="text-white">Ferretería</p>
                             <p className="text-primary">Los Maestros</p>
@@ -54,12 +49,7 @@ export default function AdminSidebar({ open, onClose }) {
                     </Link>
 
                     {/* Cerrar: solo móvil y tablet */}
-                    <button
-                        type="button"
-                        onClick={onClose}
-                        aria-label="Cerrar menú"
-                        className="text-white xl:hidden"
-                    >
+                    <button type="button" onClick={onClose} aria-label="Cerrar menú" className="text-white xl:hidden">
                         <X className="size-6" />
                     </button>
                 </div>

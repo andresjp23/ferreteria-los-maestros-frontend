@@ -1,16 +1,21 @@
-import { Navigate } from "react-router"
-import { useAuth } from "../context/AuthContext"
+import { Navigate, useLocation } from "react-router"
+import useAuth from "../hooks/useAuth"
 import { homeByRole } from "../utils/roles"
 import LoginBrandPanel from "../components/auth/LoginBrandPanel"
 import LoginForm from "../components/auth/LoginForm"
 
 export default function Login() {
     const { user } = useAuth()
+    const location = useLocation()
 
-    // Si ya hay una sesión iniciada, no se muestra el login: va a la página de su rol.
+    // Si ya hay una sesión iniciada, no se muestra el login.
+    // Vuelve a la página que se intentaba abrir (si ProtectedRoute la guardó) o a la de su rol.
+    // Si esa página es de otro rol, ProtectedRoute lo redirige a la suya.
     // replace evita que el login quede en el historial del botón "atrás".
     if (user) {
-        return <Navigate to={homeByRole[user.rol]} replace />
+        const from = location.state?.from
+        const target = from ? `${from.pathname}${from.search ?? ""}` : homeByRole[user.rol]
+        return <Navigate to={target} replace />
     }
 
     return (
