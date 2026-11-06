@@ -8,10 +8,20 @@ import { inputClass } from "../inputClass"
 // Field con el prefijo "user": los id quedan user-nombre, user-email...
 const UserField = (props) => <Field prefix="user" {...props} />
 
-export default function AddUserForm({ onCancel, onSubmit }) {
+// Formulario para crear o editar un usuario.
+// editing: al editar, la contraseña es opcional (vacía = se mantiene la actual).
+// onSubmit(values): devuelve una promesa; si el backend rechaza los datos entrega { mensaje, campos }.
+export default function UserForm({ initialValues = emptyUser, editing = false, onCancel, onSubmit }) {
     // Lo que el usuario escribe y los errores de cada campo ({} = sin errores)
-    const [values, setValues] = useState(emptyUser)
+    const [values, setValues] = useState(initialValues)
     const [errors, setErrors] = useState({})
+
+    // Mientras se espera al backend, y el error general que devuelva
+    const [submitting, setSubmitting] = useState(false)
+    const [serverError, setServerError] = useState("")
+
+    // Opciones de las validaciones: al editar, la contraseña no es obligatoria
+    const options = { editing }
 
     // Si las contraseñas se ven en texto o con puntos (un solo botón para las dos)
     const [showPassword, setShowPassword] = useState(false)
@@ -35,25 +45,26 @@ export default function AddUserForm({ onCancel, onSubmit }) {
 
         // Si el campo ya tenía error, se revisa de nuevo mientras escribe:
         // así el mensaje desaparece apenas se corrige
-        if (errors[name]) setFieldError(name, validateField(name, newValues))
+        if (errors[name]) setFieldError(name, validateField(name, newValues, options))
 
         // Confirmar contraseña depende de la contraseña: si ya tiene algo escrito, se revisa de nuevo
         if (name === "password" && (values.confirmPassword || errors.confirmPassword)) {
-            setFieldError("confirmPassword", validateField("confirmPassword", newValues))
+            setFieldError("confirmPassword", validateField("confirmPassword", newValues, options))
         }
     }
 
     // Al salir de un campo se revisa
     const handleBlur = (event) => {
         const { name } = event.target
-        setFieldError(name, validateField(name, values))
+        setFieldError(name, validateField(name, values, options))
     }
 
     // Al enviar: revisa TODOS los campos
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault() // evita que el navegador recargue la página
+        setServerError("")
 
-        const newErrors = validateUser(values)
+        const newErrors = validateUser(values, options)
         setErrors(newErrors)
 
         // Si hay errores, lleva el foco al primer campo con problema y no envía
@@ -63,7 +74,15 @@ export default function AddUserForm({ onCancel, onSubmit }) {
             return
         }
 
-        onSubmit(values)
+        setSubmitting(true)
+        const result = await onSubmit(values)
+
+        // Sin resultado = todo salió bien (la página cierra el modal). Si no, se muestran los errores.
+        if (result) {
+            setErrors(result.campos ?? {})
+            setServerError(Object.keys(result.campos ?? {}).length > 0 ? "" : result.mensaje)
+            setSubmitting(false)
+        }
     }
 
     // Propiedades comunes de todos los campos controlados
@@ -168,10 +187,14 @@ export default function AddUserForm({ onCancel, onSubmit }) {
 
                     <UserField
                         name="password"
-                        label="Contraseña"
-                        required
+                        label={editing ? "Nueva contraseña" : "Contraseña"}
+                        required={!editing}
                         error={errors.password}
-                        hint="8 a 64 caracteres, con mayúscula, minúscula y número, sin espacios."
+                        hint={
+                            editing
+                                ? "Déjala vacía para mantener la actual."
+                                : "8 a 64 caracteres, con mayúscula, minúscula y número, sin espacios."
+                        }
                     >
                         {passwordInput("password", "Crea una contraseña")}
                     </UserField>
@@ -179,7 +202,7 @@ export default function AddUserForm({ onCancel, onSubmit }) {
                     <UserField
                         name="confirmPassword"
                         label="Confirmar contraseña"
-                        required
+                        required={!editing}
                         error={errors.confirmPassword}
                     >
                         {passwordInput("confirmPassword", "Repite la contraseña")}
@@ -189,6 +212,13 @@ export default function AddUserForm({ onCancel, onSubmit }) {
 
             {/* Botones */}
             <div className="border-t border-gray-200 px-5 py-4 md:px-6">
+                {/* Error general del backend (por ejemplo, sin conexión) */}
+                {serverError && (
+                    <p role="alert" className="mb-3 text-sm text-red-600">
+                        {serverError}
+                    </p>
+                )}
+
                 {errorCount > 0 && (
                     <p role="alert" className="mb-3 text-sm text-red-600">
                         {errorCount === 1 ? "Revisa el campo con error." : `Revisa los ${errorCount} campos con error.`}
@@ -206,9 +236,10 @@ export default function AddUserForm({ onCancel, onSubmit }) {
 
                     <button
                         type="submit"
-                        className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
+                        disabled={submitting}
+                        className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-60"
                     >
-                        Agregar usuario
+                        {submitting ? "Guardando..." : editing ? "Guardar cambios" : "Agregar usuario"}
                     </button>
                 </div>
             </div>

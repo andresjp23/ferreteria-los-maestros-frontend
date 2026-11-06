@@ -13,32 +13,27 @@ const validProduct = {
     stock: "0",
     stockMinimo: "0",
     descripcion: "",
-    imagen: null,
+    imagen: "",
 }
 
 describe("validación de productos", () => {
-    it("valida el formato, unicidad y valores permitidos del producto", () => {
+    it("valida el formato y los valores permitidos del producto (la unicidad la revisa el backend)", () => {
         expect(validateField("codigo", { ...validProduct, codigo: "xz999" })).toMatch(/Formato inválido/)
-        expect(validateField("codigo", { ...validProduct, codigo: "MC001" })).toMatch(/Ya existe/)
         expect(validateField("codigo", validProduct)).toBe("")
-        expect(validateField("categoria", { ...validProduct, categoria: "inexistente" })).toBe("Categoría no válida")
+        expect(validateField("categoria", { ...validProduct, categoria: "" })).toBe("Selecciona una categoría")
         expect(validateField("stock", validProduct)).toBe("")
         expect(validateField("stock", { ...validProduct, stock: "100001" })).toMatch(/No puede superar/)
     })
 
-    it("impide vender bajo el costo y rechaza imágenes no permitidas o demasiado grandes", () => {
+    it("impide vender bajo el costo y acepta solo rutas o URLs como imagen", () => {
         expect(validateField("precioVenta", { ...validProduct, precioVenta: "999" })).toBe(
             "No puede ser menor al precio de compra",
         )
         expect(validateField("precioVenta", validProduct)).toBe("")
 
-        const gif = new File(["imagen"], "imagen.gif", { type: "image/gif" })
-        expect(validateField("imagen", { ...validProduct, imagen: gif })).toMatch(/Formato no permitido/)
-
-        const largeImage = new File([new Uint8Array(2 * 1024 * 1024 + 1)], "imagen.png", {
-            type: "image/png",
-        })
-        expect(validateField("imagen", { ...validProduct, imagen: largeImage })).toMatch(/más de 2 MB/)
+        expect(validateField("imagen", { ...validProduct, imagen: "/products/taladro.webp" })).toBe("")
+        expect(validateField("imagen", { ...validProduct, imagen: "https://ejemplo.cl/a.png" })).toBe("")
+        expect(validateField("imagen", { ...validProduct, imagen: "taladro.webp" })).toMatch(/ruta que empiece/)
     })
 
     it("devuelve un objeto vacío para un producto completo y válido", () => {

@@ -1,15 +1,15 @@
 import { Pencil, Trash2 } from "lucide-react"
 import { formatPrice } from "../../../utils/format"
-import { getStockStatus } from "../../../utils/stock"
-import { getCategoryName } from "../../../utils/catalog"
 import StatusBadge from "../../ui/StatusBadge"
 
-export default function ProductsTable({ products }) {
+// Tabla de productos del panel admin. onEdit y onDelete reciben el producto de la fila.
+// La categoría (categoriaNombre) y el estado de stock (estadoStock) ya vienen calculados del backend.
+export default function ProductsTable({ products, onEdit, onDelete }) {
     return (
         <>
             <ul className="grid gap-3 xl:hidden" aria-label="Productos">
                 {products.map((product) => {
-                    const categoryName = getCategoryName(product.categoria)
+                    const categoryName = product.categoriaNombre
 
                     return (
                         <li key={product.id} className="rounded-lg border border-gray-200 p-4">
@@ -37,7 +37,7 @@ export default function ProductsTable({ products }) {
                                 <span className="text-lg font-semibold text-secondary">
                                     {formatPrice(product.precio)}
                                 </span>
-                                <StatusBadge status={getStockStatus(product.stock)} />
+                                <StatusBadge status={product.estadoStock} />
                             </div>
 
                             <dl className="mt-4 border-t border-gray-100 pt-3">
@@ -50,6 +50,7 @@ export default function ProductsTable({ products }) {
                             <div className="mt-4 flex gap-2 border-t border-gray-100 pt-3">
                                 <button
                                     type="button"
+                                    onClick={() => onEdit(product)}
                                     aria-label={`Editar ${product.nombre}`}
                                     className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-lg border border-gray-200 px-3 text-sm font-medium text-gray-600 transition-colors hover:text-primary"
                                 >
@@ -58,6 +59,7 @@ export default function ProductsTable({ products }) {
                                 </button>
                                 <button
                                     type="button"
+                                    onClick={() => onDelete(product)}
                                     aria-label={`Eliminar ${product.nombre}`}
                                     className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-lg border border-gray-200 px-3 text-sm font-medium text-gray-600 transition-colors hover:text-red-500"
                                 >
@@ -97,7 +99,7 @@ export default function ProductsTable({ products }) {
 
                     <tbody>
                         {products.map((product) => {
-                            const categoryName = getCategoryName(product.categoria)
+                            const categoryName = product.categoriaNombre
 
                             return (
                                 <tr key={product.id} className="border-b border-gray-100 last:border-0">
@@ -131,14 +133,14 @@ export default function ProductsTable({ products }) {
                                     <td className="px-4 py-3 text-secondary">{product.stock}</td>
 
                                     <td className="px-4 py-3">
-                                        <StatusBadge status={getStockStatus(product.stock)} />
+                                        <StatusBadge status={product.estadoStock} />
                                     </td>
 
-                                    {/* Por ahora sin acción: se conectan cuando definamos el CRUD */}
                                     <td className="px-4 py-3">
                                         <div className="flex items-center gap-3 text-gray-500">
                                             <button
                                                 type="button"
+                                                onClick={() => onEdit(product)}
                                                 aria-label={`Editar ${product.nombre}`}
                                                 className="transition-colors hover:text-primary"
                                             >
@@ -146,6 +148,7 @@ export default function ProductsTable({ products }) {
                                             </button>
                                             <button
                                                 type="button"
+                                                onClick={() => onDelete(product)}
                                                 aria-label={`Eliminar ${product.nombre}`}
                                                 className="transition-colors hover:text-red-500"
                                             >

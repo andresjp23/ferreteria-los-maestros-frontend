@@ -7,7 +7,7 @@ const orders = [
     {
         id: 1042,
         cliente: "Carlos Rojas",
-        fecha: "19 Oct, 10:24",
+        fechaISO: "2026-10-19T10:24:00",
         estado: "En preparación",
         total: 89990,
         productos: ["Taladro de prueba"],
@@ -15,7 +15,7 @@ const orders = [
     {
         id: 1041,
         cliente: "María González",
-        fecha: "18 Oct, 16:32",
+        fechaISO: "2026-10-18T16:32:00",
         estado: "Enviado",
         total: 24990,
         productos: ["Pintura de prueba"],

@@ -1,21 +1,25 @@
-import { useRef, useState } from "react"
-import { categories } from "../../../mocks/categories"
-import { brands } from "../../../mocks/brands"
-import { products } from "../../../mocks/products"
+import { useState } from "react"
+import useCatalog from "../../../hooks/useCatalog"
 import { Field, SelectBox } from "../FormField"
 import { inputClass } from "../inputClass"
 import { DESCRIPTION_MAX, emptyProduct, validateField, validateProduct } from "../../../utils/productValidation"
 
-// Unidades disponibles: las que ya existen en el catálogo, sin repetir y ordenadas
-const units = [...new Set(products.map((p) => p.unidad))].sort((a, b) => a.localeCompare(b, "es"))
+// Formulario para crear o editar un producto.
+// initialValues: valores de partida (vacío para crear; los del producto para editar).
+// editing: true al editar (el código no se puede cambiar).
+// onSubmit(values): debe devolver una promesa. Si el backend rechaza los datos, la promesa entrega
+// { mensaje, campos } y el formulario muestra cada error en su campo (ej. 409 en "codigo").
+export default function ProductForm({ initialValues = emptyProduct, editing = false, onCancel, onSubmit }) {
+    // Categorías, marcas y unidades vienen del backend (CatalogProvider)
+    const { categories, brands, units } = useCatalog()
 
-export default function AddProductForm({ onCancel, onSubmit }) {
     // Lo que el usuario escribe y los errores de cada campo ({} = sin errores)
-    const [values, setValues] = useState(emptyProduct)
+    const [values, setValues] = useState(initialValues)
     const [errors, setErrors] = useState({})
 
-    // Referencia al input de archivo, para poder vaciarlo al quitar la imagen
-    const fileInputRef = useRef(null)
+    // Mientras se espera al backend, y el error general que devuelva (ej. sin conexión)
+    const [submitting, setSubmitting] = useState(false)
+    const [serverError, setServerError] = useState("")
 
     // Guarda el error de un campo, o lo borra si el mensaje viene vacío
     const setFieldError = (name, message) => {
@@ -53,24 +57,10 @@ export default function AddProductForm({ onCancel, onSubmit }) {
         setFieldError(name, validateField(name, values))
     }
 
-    // Archivo de imagen: no es un campo de texto, tiene su propio manejador
-    const handleImageChange = (event) => {
-        const file = event.target.files[0] ?? null
-        const newValues = { ...values, imagen: file }
-
-        setValues(newValues)
-        setFieldError("imagen", validateField("imagen", newValues))
-    }
-
-    const handleRemoveImage = () => {
-        setValues({ ...values, imagen: null })
-        setFieldError("imagen", "")
-        fileInputRef.current.value = "" // vacía el input para poder elegir el mismo archivo otra vez
-    }
-
-    // Al enviar: revisa TODOS los campos
-    const handleSubmit = (event) => {
+    // Al enviar: revisa TODOS los campos y, si están bien, los manda al backend
+    const handleSubmit = async (event) => {
         event.preventDefault() // evita que el navegador recargue la página
+        setServerError("")
 
         const newErrors = validateProduct(values)
         setErrors(newErrors)
@@ -82,7 +72,15 @@ export default function AddProductForm({ onCancel, onSubmit }) {
             return
         }
 
-        onSubmit(values)
+        setSubmitting(true)
+        const result = await onSubmit(values)
+
+        // Sin resultado = todo salió bien (la página cierra el modal). Si no, se muestran los errores.
+        if (result) {
+            setErrors(result.campos ?? {})
+            setServerError(Object.keys(result.campos ?? {}).length > 0 ? "" : result.mensaje)
+            setSubmitting(false)
+        }
     }
 
     // Propiedades comunes de todos los campos controlados
@@ -121,8 +119,10 @@ export default function AddProductForm({ onCancel, onSubmit }) {
                             type="text"
                             autoComplete="off"
                             placeholder="MC001"
-                            data-autofocus
+                            data-autofocus={editing ? undefined : true}
+                            disabled={editing}
                             {...fieldProps("codigo")}
+                            className={`${inputClass(errors.codigo)} disabled:bg-gray-100 disabled:text-gray-500`}
                         />
                     </Field>
 
@@ -131,6 +131,7 @@ export default function AddProductForm({ onCancel, onSubmit }) {
                             type="text"
                             autoComplete="off"
                             placeholder="Ej.: Cemento gris 25 kg"
+                            data-autofocus={editing ? true : undefined}
                             {...fieldProps("nombre")}
                         />
                     </Field>
@@ -258,41 +259,27 @@ export default function AddProductForm({ onCancel, onSubmit }) {
                         </p>
                     </Field>
 
-                    {/* El input de archivo no se puede "controlar" con value, por eso va aparte */}
                     <Field
                         name="imagen"
                         label="Imagen"
                         error={errors.imagen}
-                        hint="Opcional. JPG, PNG o WEBP, máximo 2 MB."
+                        hint="Opcional. Ruta de una imagen del sitio o una URL. Ej.: /products/taladro.webp"
                         className="md:col-span-2"
                     >
-                        <input
-                            ref={fileInputRef}
-                            id="product-imagen"
-                            name="imagen"
-                            type="file"
-                            accept=".jpg,.jpeg,.png,.webp"
-                            onChange={handleImageChange}
-                            aria-invalid={errors.imagen ? true : undefined}
-                            aria-describedby={errors.imagen ? "product-imagen-error" : undefined}
-                            className="w-full rounded-lg border border-gray-200 bg-white p-2 text-sm text-gray-600 file:mr-3 file:rounded-md file:border-0 file:bg-slate-100 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-secondary"
-                        />
-
-                        {values.imagen && (
-                            <button
-                                type="button"
-                                onClick={handleRemoveImage}
-                                className="mt-2 text-xs font-medium text-primary hover:opacity-80"
-                            >
-                                Quitar imagen
-                            </button>
-                        )}
+                        <input type="text" autoComplete="off" placeholder="/products/..." {...fieldProps("imagen")} />
                     </Field>
                 </div>
             </div>
 
             {/* Botones */}
             <div className="border-t border-gray-200 px-5 py-4 md:px-6">
+                {/* Error general del backend (por ejemplo, sin conexión) */}
+                {serverError && (
+                    <p role="alert" className="mb-3 text-sm text-red-600">
+                        {serverError}
+                    </p>
+                )}
+
                 {errorCount > 0 && (
                     <p role="alert" className="mb-3 text-sm text-red-600">
                         {errorCount === 1 ? "Revisa el campo con error." : `Revisa los ${errorCount} campos con error.`}
@@ -310,9 +297,10 @@ export default function AddProductForm({ onCancel, onSubmit }) {
 
                     <button
                         type="submit"
-                        className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
+                        disabled={submitting}
+                        className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-60"
                     >
-                        Agregar producto
+                        {submitting ? "Guardando..." : editing ? "Guardar cambios" : "Agregar producto"}
                     </button>
                 </div>
             </div>

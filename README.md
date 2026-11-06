@@ -2,7 +2,7 @@
 
 Frontend de la tienda online de Ferretería Los Maestros, negocio familiar de La Serena. Proyecto semestral de DSY1104 (EP3): SPA responsive en React que consume la API REST del backend Spring Boot.
 
-> **Integración en curso (EP3):** el catálogo, el carrito con checkout y la sesión con JWT ya usan el backend. Los paneles de administración y del vendedor todavía usan datos mock.
+> **EP3:** todos los datos vienen del backend: catálogo, checkout, sesión con JWT (se conserva al recargar y se cierra al vencer), CRUD de productos y usuarios, dashboard y gestión de pedidos del vendedor. Los permisos se validan en el backend; el frontend oculta o deshabilita lo que cada rol no puede hacer.
 
 El backend (Spring Boot + MySQL + JWT) vive en su propio repositorio: [ferreteria-los-maestros-backend](https://github.com/andresjp23/ferreteria-los-maestros-backend). Debe estar corriendo en `http://localhost:8080` (la URL se cambia con `VITE_API_URL`, ver `.env.example`).
 
@@ -51,9 +51,10 @@ Vite mostrará la URL local en la terminal. Para detener el servidor, usa `Ctrl+
 src/
 ├── components/   # Componentes por sección (admin, auth, cart, layout, products, seller...)
 │   └── ui/       # Componentes reutilizables: SectionTitle, Modal, Notice, Pagination, StatusBadge...
-├── context/      # Providers de sesión (AuthProvider) y carrito (CartProvider)
-├── hooks/        # useAuth, useCart, usePagination
-├── mocks/        # Datos de ejemplo (se reemplazarán por la API)
+├── context/      # Providers de sesión (AuthProvider), catálogo (CatalogProvider) y carrito (CartProvider)
+├── hooks/        # useAuth, useCatalog, useCart, usePagination
+├── services/     # Cliente HTTP (api.js) y llamadas a la API por recurso
+├── test/         # Configuración de los tests, backend simulado (mockApi) y datos de prueba
 ├── pages/        # Una vista por ruta; admin/ y seller/ se cargan bajo demanda
 └── utils/        # Formato, catálogo, roles, pedidos y validaciones
 ```
@@ -66,19 +67,19 @@ Las imágenes se sirven en WebP y redimensionadas al tamaño en que se muestran.
 
 ## Rutas principales
 
-| Ruta                                            | Vista                                | Acceso         |
-| ----------------------------------------------- | ------------------------------------ | -------------- |
-| `/`                                             | Inicio                               | Público        |
-| `/productos`                                    | Catálogo, búsqueda y filtros         | Público        |
-| `/productos/:id`                                | Detalle de producto                  | Público        |
-| `/carrito`                                      | Carrito                              | Público        |
-| `/nosotros`                                     | Información del negocio              | Público        |
-| `/contacto`                                     | Información y formulario de contacto | Público        |
-| `/login`                                        | Inicio de sesión de demostración     | Público        |
-| `/admin`, `/admin/productos`, `/admin/usuarios` | Panel y gestión mock                 | Rol `admin`    |
-| `/vendedor`                                     | Gestión de pedidos mock              | Rol `vendedor` |
+| Ruta                                            | Vista                                  | Acceso         |
+| ----------------------------------------------- | -------------------------------------- | -------------- |
+| `/`                                             | Inicio                                 | Público        |
+| `/productos`                                    | Catálogo, búsqueda y filtros           | Público        |
+| `/productos/:id`                                | Detalle de producto                    | Público        |
+| `/carrito`                                      | Carrito                                | Público        |
+| `/nosotros`                                     | Información del negocio                | Público        |
+| `/contacto`                                     | Información y formulario de contacto   | Público        |
+| `/login`                                        | Inicio de sesión (JWT)                 | Público        |
+| `/admin`, `/admin/productos`, `/admin/usuarios` | Dashboard y CRUD de productos/usuarios | Rol `admin`    |
+| `/vendedor`                                     | Gestión de pedidos                     | Rol `vendedor` |
 
-Las rutas inexistentes muestran una página 404. El cliente usa el sitio público y vuelve a `/` después de iniciar sesión; no tiene un panel de cuenta propio en esta fase. Si se intenta abrir una ruta protegida sin sesión, después del login se vuelve a esa ruta.
+Las rutas inexistentes muestran una página 404. El cliente usa el sitio público, compra desde el carrito y vuelve a `/` después de iniciar sesión. Si se intenta abrir una ruta protegida sin sesión, después del login se vuelve a esa ruta.
 
 ## Cuentas de demostración
 
@@ -88,22 +89,23 @@ Las rutas inexistentes muestran una página 404. El cliente usa el sitio públic
 | Vendedor      | `vendedor@losmaestros.cl` | `vendedor123` |
 | Administrador | `admin@losmaestros.cl`    | `admin123`    |
 
-Son credenciales mock incluidas en el frontend, solo para demostración. No deben usarse como cuentas reales.
+Las crea el backend al iniciar por primera vez (datos de demostración). No deben usarse como cuentas reales.
 
 ## Funcionalidades
 
 - Catálogo con búsqueda en vivo, filtros por categoría, marca, disponibilidad y precio, orden y botón “Mostrar más”.
 - Detalle de producto con stock, selector de cantidad y productos relacionados.
 - Carrito con límites según stock, eliminación y vaciado. Se conserva en `localStorage` (solo id y cantidad; precio y stock se leen siempre del catálogo).
-- Inicio de sesión simulado por rol. La sesión se conserva en `localStorage` y la navbar del cliente permite cerrar sesión.
-- Panel admin con dashboard, filtros y paginación de productos/usuarios, y formularios con validaciones.
-- Panel vendedor con filtros, selección, detalle y cambios locales de estado de pedidos.
+- Checkout para clientes: el backend valida el stock, lo descuenta y calcula el total.
+- Inicio de sesión con JWT. El token se guarda en `localStorage`, la sesión se restaura al recargar con `GET /auth/me` y se cierra sola cuando el token vence (o si el backend responde 401).
+- Panel admin: dashboard con indicadores reales y CRUD de productos y usuarios, con validaciones en el formulario y los errores del backend (400/409) en cada campo.
+- Panel vendedor: pedidos del backend con filtros, detalle y avance de estado (En preparación → Enviado → Entregado).
 - Diseño responsive: menú móvil, filtros plegables y tarjetas para tablas en pantallas menores a `xl`.
 
-Los datos están en `src/mocks/`; las imágenes que los productos cargan por URL están en `public/products/`.
+Los datos vienen de la API (`src/services/`). Las imágenes de los productos están en `public/products/` y el backend guarda su ruta.
 
 ## Pruebas y documentación
 
 - [Documento de funcionalidad y apoyo para la defensa técnica](docs/documento-ferreteria-los-maestros.md)
 
-El documento de cobertura de testing se entrega por separado en AVA. Las operaciones de alta de productos/usuarios y los estados de pedidos no se guardan en un servidor.
+Los tests simulan el backend reemplazando `fetch` (`src/test/mockApi.js`), así se prueba el flujo real de cada pantalla sin levantar el servidor.

@@ -1,5 +1,5 @@
 import { Search, RefreshCw } from "lucide-react"
-import { categories } from "../../../mocks/categories"
+import useCatalog from "../../../hooks/useCatalog"
 import { stockStatuses } from "../../../utils/stock"
 import FilterSelect from "../FilterSelect"
 
@@ -12,6 +12,9 @@ export default function ProductFilters({
     onStatusChange,
     onClear,
 }) {
+    // Las categorías del filtro vienen del backend
+    const { categories } = useCatalog()
+
     return (
         // Móvil: todo apilado. Tablet: búsqueda arriba y los dos selectos lado a lado.
         // Escritorio (xl): una sola fila.

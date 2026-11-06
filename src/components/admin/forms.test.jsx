@@ -1,15 +1,25 @@
 import { describe, expect, it, vi } from "vitest"
 import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import AddProductForm from "./products/AddProductForm"
-import AddUserForm from "./users/AddUserForm"
+import { CatalogContext } from "../../context/catalogContext"
+import { brands, categories, units } from "../../test/fixtures"
+import ProductForm from "./products/ProductForm"
+import UserForm from "./users/UserForm"
+
+// El formulario de producto lee categorías, marcas y unidades del catálogo
+const renderProductForm = (props) =>
+    render(
+        <CatalogContext.Provider value={{ categories, brands, units }}>
+            <ProductForm onCancel={vi.fn()} {...props} />
+        </CatalogContext.Provider>,
+    )
 
 describe("formulario de producto", () => {
     it("muestra errores, enfoca el primer campo inválido y no envía datos incompletos", async () => {
         const onSubmit = vi.fn()
         const user = userEvent.setup()
 
-        render(<AddProductForm onCancel={vi.fn()} onSubmit={onSubmit} />)
+        renderProductForm({ onSubmit })
 
         await user.click(screen.getByRole("button", { name: "Agregar producto" }))
 
@@ -19,10 +29,10 @@ describe("formulario de producto", () => {
     })
 
     it("envía los valores cuando todos los campos requeridos son válidos", async () => {
-        const onSubmit = vi.fn()
+        const onSubmit = vi.fn().mockResolvedValue(undefined)
         const user = userEvent.setup()
 
-        render(<AddProductForm onCancel={vi.fn()} onSubmit={onSubmit} />)
+        renderProductForm({ onSubmit })
 
         await user.type(screen.getByLabelText(/Código/i), "XZ999")
         await user.type(screen.getByLabelText(/Nombre del producto/i), "Taladro de prueba")
@@ -44,17 +54,52 @@ describe("formulario de producto", () => {
             precioCompra: "1000",
             precioVenta: "1500",
             stock: "0",
-            imagen: null,
+            imagen: "",
         })
+    })
+
+    it("muestra en su campo el error que devuelve el backend (409 código repetido)", async () => {
+        const onSubmit = vi.fn().mockResolvedValue({
+            mensaje: "Ya existe un producto con este código",
+            campos: { codigo: "Ya existe un producto con este código" },
+        })
+        const user = userEvent.setup()
+        const initialValues = {
+            codigo: "HE001",
+            nombre: "Taladro",
+            categoria: "herramientas",
+            subcategoria: "Eléctricas",
+            marca: "Bosch",
+            unidad: "Unidad",
+            precioCompra: "1000",
+            precioVenta: "1500",
+            stock: "5",
+            stockMinimo: "1",
+            descripcion: "",
+            imagen: "",
+        }
+
+        renderProductForm({ onSubmit, initialValues })
+        await user.click(screen.getByRole("button", { name: "Agregar producto" }))
+
+        expect(await screen.findByText("Ya existe un producto con este código")).toBeInTheDocument()
+        expect(screen.getByLabelText(/Código/i)).toHaveAttribute("aria-invalid", "true")
+    })
+
+    it("al editar, el código queda bloqueado y el botón dice Guardar cambios", () => {
+        renderProductForm({ onSubmit: vi.fn(), editing: true })
+
+        expect(screen.getByLabelText(/Código/i)).toBeDisabled()
+        expect(screen.getByRole("button", { name: "Guardar cambios" })).toBeInTheDocument()
     })
 })
 
 describe("formulario de usuario", () => {
     it("bloquea contraseñas distintas y envía al corregir la confirmación", async () => {
-        const onSubmit = vi.fn()
+        const onSubmit = vi.fn().mockResolvedValue(undefined)
         const user = userEvent.setup()
 
-        render(<AddUserForm onCancel={vi.fn()} onSubmit={onSubmit} />)
+        render(<UserForm onCancel={vi.fn()} onSubmit={onSubmit} />)
 
         await user.type(screen.getByLabelText(/Nombre completo/i), "Ana Pérez")
         await user.type(screen.getByLabelText(/Correo electrónico/i), "ana.nueva@example.cl")

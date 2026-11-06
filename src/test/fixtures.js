@@ -7,6 +7,8 @@ export const categories = [
 
 export const brands = ["Bosch", "Makita", "Polpaico"]
 
+export const units = ["Saco", "Unidad"]
+
 const product = (id, nombre, categoria, categoriaNombre, marca, precio, stock) => ({
     id,
     nombre,
@@ -42,6 +44,7 @@ export const catalogRoutes = {
     "GET /productos": products,
     "GET /categorias": categories,
     "GET /marcas": brands,
+    "GET /unidades": units,
 }
 
 export const users = {

@@ -1,11 +1,11 @@
-import { products } from "../mocks/products"
-import { categories } from "../mocks/categories"
+// Validaciones del formulario de producto. Son las mismas reglas que aplica el backend
+// (ProductoRequest): aquí sirven para avisar al instante, sin esperar la respuesta del servidor.
+// Lo que solo el backend puede saber (código repetido, categoría inexistente) llega como error 400/409.
 
 // Límites de las reglas: se ajustan acá, en un solo lugar
 const MAX_PRICE = 9999999
 const MAX_STOCK = 100000
-const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"]
-const MAX_IMAGE_SIZE = 2 * 1024 * 1024 // 2 MB expresados en bytes
+const IMAGE_MAX = 255
 export const DESCRIPTION_MAX = 120
 
 // Valores iniciales del formulario. El ORDEN de estas claves es el orden en que
@@ -22,7 +22,7 @@ export const emptyProduct = {
     stock: "",
     stockMinimo: "",
     descripcion: "",
-    imagen: null,
+    imagen: "",
 }
 
 // Valida un número entero escrito como texto.
@@ -55,8 +55,7 @@ export const validateField = (name, values) => {
             if (!value) return "El código es obligatorio"
             // Formato: 2 letras mayúsculas + 3 números (como MC001, HE004)
             if (!/^[A-Z]{2}\d{3}$/.test(value)) return "Formato inválido: 2 letras mayúsculas y 3 números (ej. MC001)"
-            // Único: no puede repetirse uno que ya existe en el catálogo
-            if (products.some((p) => p.id === value)) return "Ya existe un producto con este código"
+            // Que no esté repetido lo revisa el backend (responde 409)
             return ""
 
         case "nombre":
@@ -67,9 +66,7 @@ export const validateField = (name, values) => {
             return ""
 
         case "categoria":
-            if (!value) return "Selecciona una categoría"
-            if (!categories.some((c) => c.id === value)) return "Categoría no válida"
-            return ""
+            return value ? "" : "Selecciona una categoría"
 
         case "subcategoria":
             if (!value) return "La subcategoría es obligatoria"
@@ -130,10 +127,10 @@ export const validateField = (name, values) => {
             return value.length > DESCRIPTION_MAX ? `Máximo ${DESCRIPTION_MAX} caracteres` : ""
 
         case "imagen":
-            // Opcional: si no hay archivo, está bien
+            // Opcional: ruta de una imagen del sitio (/products/...) o una URL completa
             if (!value) return ""
-            if (!ALLOWED_IMAGE_TYPES.includes(value.type)) return "Formato no permitido. Usa JPG, PNG o WEBP"
-            if (value.size > MAX_IMAGE_SIZE) return "La imagen no puede pesar más de 2 MB"
+            if (value.length > IMAGE_MAX) return `Máximo ${IMAGE_MAX} caracteres`
+            if (!/^(\/|https?:\/\/)\S+$/.test(value)) return "Usa una ruta que empiece con / o una URL (https://...)"
             return ""
 
         default:
@@ -154,19 +151,35 @@ export const validateProduct = (values) => {
     return errors
 }
 
-// Convierte los valores del formulario (todo texto) en el producto con sus tipos reales:
-// textos sin espacios sobrantes y números como número.
+// Convierte los valores del formulario (todo texto) en el cuerpo que espera el backend
+// (POST/PUT /api/admin/productos): textos sin espacios sobrantes y números como número.
 export const buildProduct = (values) => ({
-    id: values.codigo.trim(),
+    codigo: values.codigo.trim(),
     nombre: values.nombre.trim(),
     categoria: values.categoria,
     subcategoria: values.subcategoria.trim(),
     marca: values.marca.trim(),
     unidad: values.unidad,
-    precio: Number(values.precioVenta),
     precioCompra: Number(values.precioCompra),
+    precioVenta: Number(values.precioVenta),
     stock: Number(values.stock),
     stockMinimo: Number(values.stockMinimo),
     descripcion: values.descripcion.trim(),
-    image: values.imagen ? values.imagen.name : "",
+    imagen: values.imagen.trim() || null,
+})
+
+// Lo inverso: un producto del backend convertido en los valores (texto) del formulario, para editarlo
+export const productToForm = (product) => ({
+    codigo: product.id,
+    nombre: product.nombre,
+    categoria: product.categoria,
+    subcategoria: product.subcategoria,
+    marca: product.marca,
+    unidad: product.unidad,
+    precioCompra: String(product.precioCompra),
+    precioVenta: String(product.precio),
+    stock: String(product.stock),
+    stockMinimo: String(product.stockMinimo),
+    descripcion: product.descripcion ?? "",
+    imagen: product.image ?? "",
 })

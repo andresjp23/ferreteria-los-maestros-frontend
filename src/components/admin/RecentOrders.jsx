@@ -1,14 +1,16 @@
-import { orders } from "../../mocks/orders"
-import { formatPrice } from "../../utils/format"
+import { formatDateTime, formatPrice } from "../../utils/format"
 import SectionTitle from "../ui/SectionTitle"
 import StatusBadge from "../ui/StatusBadge"
 
-export default function RecentOrders() {
+// Últimos pedidos del dashboard. orders: los que entrega GET /api/pedidos?limit=5
+export default function RecentOrders({ orders }) {
     return (
         <section className="mt-6 rounded-xl border border-gray-200 bg-white p-5 md:p-6">
             <div className="mb-5">
                 <SectionTitle>Pedidos recientes</SectionTitle>
             </div>
+
+            {orders.length === 0 && <p className="py-6 text-center text-sm text-gray-500">Aún no hay pedidos.</p>}
 
             <ul className="grid gap-3 xl:hidden" aria-label="Pedidos recientes">
                 {orders.map((order) => (
@@ -28,7 +30,7 @@ export default function RecentOrders() {
                             </div>
                             <div>
                                 <dt className="text-xs font-medium text-gray-500">Fecha</dt>
-                                <dd className="mt-1 text-gray-700">{order.fecha}</dd>
+                                <dd className="mt-1 text-gray-700">{formatDateTime(order.fechaISO)}</dd>
                             </div>
                         </dl>
 
@@ -68,7 +70,7 @@ export default function RecentOrders() {
                             <tr key={order.id} className="border-b border-gray-100 last:border-0">
                                 <td className="px-4 py-4 font-semibold text-secondary">#{order.id}</td>
                                 <td className="px-4 py-4 text-gray-700">{order.cliente}</td>
-                                <td className="px-4 py-4 text-gray-500">{order.fecha}</td>
+                                <td className="px-4 py-4 text-gray-500">{formatDateTime(order.fechaISO)}</td>
                                 <td className="px-4 py-4">
                                     <StatusBadge status={order.estado} />
                                 </td>

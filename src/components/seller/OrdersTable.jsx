@@ -1,7 +1,7 @@
 import { Eye, Pencil, Truck } from "lucide-react"
 import StatusBadge from "../ui/StatusBadge"
 import Pagination from "../ui/Pagination"
-import { formatPrice } from "../../utils/format"
+import { formatDateTime, formatPrice } from "../../utils/format"
 
 export default function OrdersTable({
     orders,
@@ -64,7 +64,7 @@ export default function OrdersTable({
                                     </div>
                                     <div>
                                         <dt className="text-xs font-medium text-slate-500">Fecha</dt>
-                                        <dd className="mt-1 text-secondary">{order.fecha}</dd>
+                                        <dd className="mt-1 text-secondary">{formatDateTime(order.fechaISO)}</dd>
                                     </div>
                                     <div className="col-span-2">
                                         <dt className="text-xs font-medium text-slate-500">Total</dt>
@@ -87,8 +87,9 @@ export default function OrdersTable({
                                     <button
                                         type="button"
                                         onClick={() => onEdit(order)}
+                                        disabled={order.estado === "Entregado"}
                                         aria-label={`Editar pedido ${order.id}`}
-                                        className="inline-flex min-h-11 flex-1 items-center justify-center gap-1 rounded-lg border border-slate-200 px-2 text-sm font-medium text-slate-600 hover:text-primary"
+                                        className="inline-flex min-h-11 flex-1 items-center justify-center gap-1 rounded-lg border border-slate-200 px-2 text-sm font-medium text-slate-600 hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
                                     >
                                         <Pencil className="size-4" />
                                         Estado
@@ -153,7 +154,9 @@ export default function OrdersTable({
 
                                 <td className="px-3 py-4 text-secondary">{order.cliente}</td>
 
-                                <td className="whitespace-nowrap px-3 py-4 text-slate-500">{order.fecha}</td>
+                                <td className="whitespace-nowrap px-3 py-4 text-slate-500">
+                                    {formatDateTime(order.fechaISO)}
+                                </td>
 
                                 <td className="whitespace-nowrap px-3 py-4 font-semibold text-secondary">
                                     {formatPrice(order.total)}
@@ -178,9 +181,10 @@ export default function OrdersTable({
                                         <button
                                             type="button"
                                             onClick={() => onEdit(order)}
+                                            disabled={order.estado === "Entregado"}
                                             title="Editar estado"
                                             aria-label={`Editar pedido ${order.id}`}
-                                            className="text-slate-500 hover:text-primary"
+                                            className="text-slate-500 hover:text-primary disabled:cursor-not-allowed disabled:opacity-30"
                                         >
                                             <Pencil className="size-5" />
                                         </button>

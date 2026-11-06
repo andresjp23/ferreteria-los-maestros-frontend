@@ -9,18 +9,25 @@ export function CatalogProvider({ children }) {
     const [products, setProducts] = useState([])
     const [categories, setCategories] = useState([])
     const [brands, setBrands] = useState([])
+    const [units, setUnits] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState("")
 
-    // Pide productos, categorías y marcas en paralelo (Promise.all espera a las tres).
+    // Pide productos, categorías, marcas y unidades en paralelo (Promise.all espera a todas).
     // El estado se actualiza recién cuando llegan las respuestas.
     const reload = useCallback(
         () =>
-            Promise.all([catalogService.getProducts(), catalogService.getCategories(), catalogService.getBrands()])
-                .then(([productList, categoryList, brandList]) => {
+            Promise.all([
+                catalogService.getProducts(),
+                catalogService.getCategories(),
+                catalogService.getBrands(),
+                catalogService.getUnits(),
+            ])
+                .then(([productList, categoryList, brandList, unitList]) => {
                     setProducts(productList)
                     setCategories(categoryList)
                     setBrands(brandList)
+                    setUnits(unitList)
                     setError("")
                 })
                 .catch((err) => setError(err.message))
@@ -49,6 +56,7 @@ export function CatalogProvider({ children }) {
         products,
         categories,
         brands,
+        units,
         loading,
         error,
         reload, // vuelve a pedir el catálogo sin mostrar "Cargando" (ej. después de una compra)

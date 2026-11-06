@@ -3,6 +3,10 @@ import { matchesAllWords } from "./format"
 // Estados de un pedido, en el orden en que avanza
 export const orderStatuses = ["En preparación", "Enviado", "Entregado"]
 
+// Estado al que puede pasar un pedido (solo se avanza un paso), o null si ya fue entregado.
+// Es la misma regla que aplica el backend (EstadoPedido.siguiente).
+export const nextOrderStatus = (status) => orderStatuses[orderStatuses.indexOf(status) + 1] ?? null
+
 const DAY_MS = 1000 * 60 * 60 * 24
 
 // Filtra pedidos por texto (n°, cliente o producto), estado y antigüedad en días.

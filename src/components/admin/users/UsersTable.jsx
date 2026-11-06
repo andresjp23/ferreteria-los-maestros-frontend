@@ -3,7 +3,9 @@ import { roleLabels } from "../../../utils/roles"
 import { formatDateTime, getInitials } from "../../../utils/format"
 import StatusBadge from "../../ui/StatusBadge"
 
-export default function UsersTable({ users }) {
+// Tabla de usuarios del panel admin. onEdit y onDelete reciben el usuario de la fila.
+// currentUserId: la cuenta con sesión no se puede eliminar (el backend también lo impide).
+export default function UsersTable({ users, currentUserId, onEdit, onDelete }) {
     return (
         <>
             <ul className="grid gap-3 xl:hidden" aria-label="Usuarios">
@@ -35,6 +37,7 @@ export default function UsersTable({ users }) {
                         <div className="mt-4 flex gap-2 border-t border-gray-100 pt-3">
                             <button
                                 type="button"
+                                onClick={() => onEdit(user)}
                                 aria-label={`Editar a ${user.nombre}`}
                                 className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-lg border border-gray-200 px-3 text-sm font-medium text-gray-600 transition-colors hover:text-primary"
                             >
@@ -43,8 +46,11 @@ export default function UsersTable({ users }) {
                             </button>
                             <button
                                 type="button"
+                                onClick={() => onDelete(user)}
+                                disabled={user.id === currentUserId}
+                                title={user.id === currentUserId ? "No puedes eliminar tu propia cuenta" : undefined}
                                 aria-label={`Eliminar a ${user.nombre}`}
-                                className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-lg border border-gray-200 px-3 text-sm font-medium text-gray-600 transition-colors hover:text-red-500"
+                                className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-lg border border-gray-200 px-3 text-sm font-medium text-gray-600 transition-colors hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:text-gray-600"
                             >
                                 <Trash2 className="size-4" />
                                 Eliminar
@@ -113,11 +119,11 @@ export default function UsersTable({ users }) {
                                     {formatDateTime(user.ultimoAcceso)}
                                 </td>
 
-                                {/* Por ahora sin acción: se conectan cuando definamos el CRUD */}
                                 <td className="px-4 py-3">
                                     <div className="flex items-center gap-3 text-gray-500">
                                         <button
                                             type="button"
+                                            onClick={() => onEdit(user)}
                                             aria-label={`Editar a ${user.nombre}`}
                                             className="transition-colors hover:text-primary"
                                         >
@@ -125,8 +131,15 @@ export default function UsersTable({ users }) {
                                         </button>
                                         <button
                                             type="button"
+                                            onClick={() => onDelete(user)}
+                                            disabled={user.id === currentUserId}
+                                            title={
+                                                user.id === currentUserId
+                                                    ? "No puedes eliminar tu propia cuenta"
+                                                    : undefined
+                                            }
                                             aria-label={`Eliminar a ${user.nombre}`}
-                                            className="transition-colors hover:text-red-500"
+                                            className="transition-colors hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:text-gray-500"
                                         >
                                             <Trash2 className="size-5" />
                                         </button>
