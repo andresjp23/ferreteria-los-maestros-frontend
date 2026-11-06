@@ -1,83 +1,109 @@
-import { useEffect, useState } from "react"
-import { users } from "../mocks/users"
-import { homeByRole } from "../utils/roles"
+import { useCallback, useEffect, useState } from "react"
+import * as authService from "../services/authService"
+import { setUnauthorizedHandler, tokenStorage } from "../services/api"
+import { getTokenExpiration } from "../utils/jwt"
 import { AuthContext } from "./authContext"
 
-// Nombre bajo el cual se guarda la sesión en el localStorage del navegador
-const STORAGE_KEY = "auth_user"
+const EXPIRED_MESSAGE = "Tu sesión expiró. Inicia sesión nuevamente"
 
-// true si el objeto tiene la forma de una sesión válida y un rol conocido.
-// localStorage lo puede editar cualquiera, así que no se confía en lo que trae.
-const isValidUser = (value) =>
-    value !== null &&
-    typeof value === "object" &&
-    typeof value.nombre === "string" &&
-    typeof value.email === "string" &&
-    Object.hasOwn(homeByRole, value.rol)
+// Revisa el token guardado al abrir la app. Un token vencido no se envía al backend: se descarta.
+const readStoredSession = () => {
+    const token = tokenStorage.get()
+    if (!token) return { token: null, message: "" }
 
-// Lee la sesión guardada.
-// Si no hay ninguna (o está corrupta) devuelve null, lo que significa que nadie ha iniciado sesion
-const loadUser = () => {
-    try {
-        // JSON.parse convierte el texto guardado de vuelta a un objeto de JavaScript
-        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY))
-        return isValidUser(saved) ? saved : null
-    } catch {
-        return null
+    const expiration = getTokenExpiration(token)
+    if (expiration !== null && expiration <= Date.now()) {
+        tokenStorage.clear()
+        return { token: null, message: EXPIRED_MESSAGE }
     }
+    return { token, message: "" }
 }
 
-// Componente que envuelve la app y le entrega la sesión a todos sus hijos
+// Componente que envuelve la app y le entrega la sesión a todos sus hijos.
+// La sesión es el JWT guardado en localStorage: el usuario se pide al backend (GET /auth/me),
+// así el rol siempre viene del servidor y no de algo que se pueda editar en el navegador.
 export function AuthProvider({ children }) {
-    // user: null si nadie inició sesión, o un objeto { id, nombre, email, rol }.
-    // loadUser va sin paréntesis para que React la ejecute UNA sola vez, al crear el estado.
-    const [user, setUser] = useState(loadUser)
+    // Sesión guardada al abrir la app. La función va sin paréntesis para que React la ejecute UNA vez.
+    const [storedSession] = useState(readStoredSession)
 
-    // Cada vez que user cambia, actualiza el localStorage:
-    // si hay usuario lo guarda, y si es null (cerró sesión) borra lo guardado
-    useEffect(() => {
-        if (user) {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(user))
-        } else {
-            localStorage.removeItem(STORAGE_KEY)
-        }
-    }, [user])
+    // user: null si nadie inició sesión, o { id, nombre, email, rol }
+    const [user, setUser] = useState(null)
 
-    // Revisa el correo y la contraseña contra los usuarios mock.
-    // Es async a propósito: en la fase 2 será una llamada al backend, que también tarda,
-    // y así los componentes que la usan no tendrán que cambiar.
-    // IMPORTANTE: esta revisión en el navegador es solo para la demo. Con backend,
-    // la autenticación y los permisos por rol se validan en el servidor.
-    const login = async (email, password) => {
-        // find devuelve el primer usuario que cumple la condición, o undefined si ninguno la cumple.
-        // El correo se limpia (espacios) y se pasa a minúsculas antes de comparar.
-        const found = users.find((u) => u.email === email.trim().toLowerCase() && u.password === password)
+    // loading: true mientras el backend confirma el token guardado (al abrir o recargar la página).
+    // Mientras dura, ProtectedRoute espera en vez de mandar al login antes de tiempo.
+    const [loading, setLoading] = useState(storedSession.token !== null)
 
-        // No hubo coincidencia: avisa del error y no inicia sesión
-        if (!found) {
-            return { ok: false, error: "Correo o contraseña incorrectos" }
-        }
+    // Aviso para la página de login (por ejemplo, "Tu sesión expiró")
+    const [sessionMessage, setSessionMessage] = useState(storedSession.message)
 
-        // Se guarda una versión SIN la contraseña: la sesión nunca debe incluirla
-        const safeUser = {
-            id: found.id,
-            nombre: found.nombre,
-            email: found.email,
-            rol: found.rol,
-        }
-
-        setUser(safeUser)
-
-        return { ok: true, user: safeUser }
-    }
-
-    // Cerrar sesión: deja user en null (el useEffect de arriba borra el localStorage)
-    const logout = () => {
+    // Cerrar sesión: borra el token y el usuario. message es opcional y se muestra en el login.
+    const logout = useCallback((message = "") => {
+        tokenStorage.clear()
         setUser(null)
+        setSessionMessage(message)
+    }, [])
+
+    // Si el backend responde 401 a una petición con token (venció o es inválido), se cierra la sesión
+    useEffect(() => {
+        setUnauthorizedHandler((message) => logout(message || EXPIRED_MESSAGE))
+        return () => setUnauthorizedHandler(null)
+    }, [logout])
+
+    // Al abrir la app: si hay un token vigente guardado, se valida con el backend y se recupera el usuario
+    useEffect(() => {
+        if (!storedSession.token) return
+
+        let cancelled = false
+        authService
+            .getCurrentUser()
+            .then((currentUser) => {
+                if (!cancelled) setUser(currentUser)
+            })
+            .catch(() => {
+                // 401: el handler de arriba ya cerró la sesión. Otro error (servidor apagado):
+                // no se puede confirmar la sesión, así que se descarta el token.
+                if (!cancelled && tokenStorage.get()) logout()
+            })
+            .finally(() => {
+                if (!cancelled) setLoading(false)
+            })
+
+        // Si el componente se desmonta antes de la respuesta, no se actualiza el estado
+        return () => {
+            cancelled = true
+        }
+    }, [storedSession, logout])
+
+    // Mientras haya sesión, programa el cierre automático para el momento en que vence el token
+    useEffect(() => {
+        if (!user) return
+        const expiration = getTokenExpiration(tokenStorage.get())
+        if (expiration === null) return
+
+        const timer = setTimeout(() => logout(EXPIRED_MESSAGE), Math.max(0, expiration - Date.now()))
+        return () => clearTimeout(timer)
+    }, [user, logout])
+
+    // Inicia sesión contra el backend. Devuelve { ok: true, user } o { ok: false, error }
+    // para que el formulario muestre el mensaje sin manejar excepciones.
+    const login = async (email, password) => {
+        try {
+            const { token, usuario } = await authService.login(email.trim(), password)
+            tokenStorage.set(token)
+            setSessionMessage("")
+            setUser(usuario)
+            return { ok: true, user: usuario }
+        } catch (error) {
+            return { ok: false, error: error.message }
+        }
     }
+
+    const clearSessionMessage = () => setSessionMessage("")
 
     return (
         // value: lo que queda disponible para los componentes que usen el contexto
-        <AuthContext.Provider value={{ user, login, logout }}>{children}</AuthContext.Provider>
+        <AuthContext.Provider value={{ user, loading, login, logout, sessionMessage, clearSessionMessage }}>
+            {children}
+        </AuthContext.Provider>
     )
 }

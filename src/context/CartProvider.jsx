@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react"
-import { products } from "../mocks/products"
+import { useContext, useEffect, useState } from "react"
 import { CartContext } from "./cartContext"
+import { CatalogContext } from "./catalogContext"
 
 // Nombre del carrito dentro del localStorage del navegador
 const STORAGE_KEY = "cart"
@@ -25,9 +25,12 @@ const loadCart = () => {
 }
 
 // Componente que envuelve la página y le entrega el carrito a todos sus hijos.
-// catalog: lista de productos donde se buscan los datos de cada línea
-// (por defecto el mock; en la fase 2 vendrá del backend).
-export function CartProvider({ children, catalog = products }) {
+// catalog: lista de productos donde se buscan los datos de cada línea.
+// Por defecto es el catálogo del backend (CatalogProvider); los tests pueden pasar uno propio.
+export function CartProvider({ children, catalog }) {
+    const catalogContext = useContext(CatalogContext)
+    const products = catalog ?? catalogContext?.products ?? []
+
     // items: arreglo de { id, cantidad }.
     // Le pasamos la función loadCart (sin paréntesis) para que React la ejecute UNA sola vez, al crear el estado.
     const [items, setItems] = useState(loadCart)
@@ -38,10 +41,11 @@ export function CartProvider({ children, catalog = products }) {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(items))
     }, [items]) // [items]: el efecto se ejecuta solo cuando este valor cambia
 
-    const findProduct = (id) => catalog.find((product) => product.id === id)
+    const findProduct = (id) => products.find((product) => product.id === id)
 
     // Líneas del carrito con los datos actuales del catálogo.
-    // Si un producto ya no existe o se quedó sin stock, no se muestra;
+    // Si un producto ya no existe o se quedó sin stock, no se muestra (pero sigue guardado:
+    // mientras el catálogo carga, la lista está vacía y el carrito no se debe perder);
     // si el stock bajó, la cantidad se ajusta al nuevo máximo.
     const cartItems = items.flatMap(({ id, cantidad }) => {
         const product = findProduct(id)

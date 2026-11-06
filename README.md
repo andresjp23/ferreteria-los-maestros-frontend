@@ -1,10 +1,10 @@
 # Ferretería Los Maestros
 
-Frontend de una tienda online para el caso académico de Ferretería Los Maestros, negocio familiar de La Serena. El proyecto corresponde a la Evaluación Parcial 2 de DSY1104 y se enfoca en construir una SPA responsive con catálogo, carrito y vistas de administración/ventas.
+Frontend de la tienda online de Ferretería Los Maestros, negocio familiar de La Serena. Proyecto semestral de DSY1104 (EP3): SPA responsive en React que consume la API REST del backend Spring Boot.
 
-> **Alcance:** esta entrega funciona con datos mock y estado local del navegador. No incluye backend, API, base de datos ni persistencia de operaciones comerciales.
+> **Integración en curso (EP3):** el catálogo, el carrito con checkout y la sesión con JWT ya usan el backend. Los paneles de administración y del vendedor todavía usan datos mock.
 
-El backend (Spring Boot + MySQL) vive en su propio repositorio: [ferreteria-los-maestros-backend](https://github.com/andresjp23/ferreteria-los-maestros-backend).
+El backend (Spring Boot + MySQL + JWT) vive en su propio repositorio: [ferreteria-los-maestros-backend](https://github.com/andresjp23/ferreteria-los-maestros-backend). Debe estar corriendo en `http://localhost:8080` (la URL se cambia con `VITE_API_URL`, ver `.env.example`).
 
 ## Stack
 

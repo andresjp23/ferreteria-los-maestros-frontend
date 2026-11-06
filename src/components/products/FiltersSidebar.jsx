@@ -1,7 +1,6 @@
 import { useState } from "react"
 import { SlidersHorizontal, ChevronDown, RefreshCw } from "lucide-react"
-import { categories } from "../../mocks/categories"
-import { brands } from "../../mocks/brands"
+import useCatalog from "../../hooks/useCatalog"
 
 // Grupo colapsable: título + flecha + contenido
 function FilterGroup({ title, defaultOpen = false, children }) {
@@ -31,6 +30,7 @@ export default function FiltersSidebar({
     onClear,
 }) {
     const [isOpen, setIsOpen] = useState(false)
+    const { categories, brands } = useCatalog()
 
     return (
         <aside className="mb-6 xl:mb-0 xl:sticky xl:top-28 xl:max-h-[calc(100vh-8rem)] xl:overflow-y-auto">
@@ -109,7 +109,7 @@ export default function FiltersSidebar({
                         </div>
                     </FilterGroup>
 
-                    {/* Marca: lista con scroll porque hay 31 marcas */}
+                    {/* Marca: lista con scroll porque son muchas */}
                     <FilterGroup title="Marca">
                         <div className="flex flex-col gap-2">
                             {brands.map((brand) => (

@@ -3,7 +3,6 @@ import { ShoppingCart, ArrowRight, Trash2 } from "lucide-react"
 import useCart from "../../hooks/useCart"
 import SectionTitle from "../ui/SectionTitle"
 import { formatPrice, formatUnit } from "../../utils/format"
-import { getCategoryName } from "../../utils/catalog"
 
 export default function CartItems() {
     // Carrito real y las funciones para modificarlo
@@ -58,7 +57,7 @@ export default function CartItems() {
                                     </Link>
                                 </h3>
 
-                                <p className="mt-1 text-sm text-slate-500">{getCategoryName(item.categoria)}</p>
+                                <p className="mt-1 text-sm text-slate-500">{item.categoriaNombre}</p>
 
                                 {/* Precio de UNA unidad */}
                                 <p className="mt-2 font-semibold text-primary">

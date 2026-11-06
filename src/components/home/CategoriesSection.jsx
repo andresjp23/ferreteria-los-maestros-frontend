@@ -5,17 +5,21 @@ import Materiales from "../../assets/categories/materiales-image.webp"
 import Martillo from "../../assets/categories/martillos.webp"
 import Gasfiteria from "../../assets/categories/gasfiteria.webp"
 import SectionTitle from "../ui/SectionTitle"
-import { getCategoryName } from "../../utils/catalog"
+import useCatalog from "../../hooks/useCatalog"
 
 // Categorías destacadas en el inicio.
-// slug = el mismo valor del campo "categoria" en los productos (el nombre visible sale del catálogo)
+// slug = el id de la categoría en el backend. El nombre visible sale del catálogo;
+// "title" se usa mientras carga o si el backend no responde, para no dejar la tarjeta vacía.
 const featured = [
-    { slug: "materiales-construccion", icon: BrickWall, image: Materiales },
-    { slug: "herramientas", icon: Hammer, image: Martillo },
-    { slug: "gasfiteria", icon: Wrench, image: Gasfiteria },
+    { slug: "materiales-construccion", title: "Materiales de construcción", icon: BrickWall, image: Materiales },
+    { slug: "herramientas", title: "Herramientas", icon: Hammer, image: Martillo },
+    { slug: "gasfiteria", title: "Gasfitería", icon: Wrench, image: Gasfiteria },
 ]
 
 export default function CategoriesSection() {
+    const { categories } = useCatalog()
+    const nameOf = (slug, fallback) => categories.find((c) => c.id === slug)?.nombre ?? fallback
+
     return (
         <section className="px-6 py-10 md:px-10 md:py-12 xl:px-20 xl:py-14">
             {/* Encabezado de la sección */}
@@ -30,13 +34,13 @@ export default function CategoriesSection() {
 
             {/* Tarjetas: cada una lleva a Productos con su categoría */}
             <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-                {featured.map(({ slug, icon: Icon, image }) => (
+                {featured.map(({ slug, title, icon: Icon, image }) => (
                     <Link
                         key={slug}
                         to={`/productos?categoria=${slug}`}
                         className="block h-full rounded-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                     >
-                        <CategoryCard title={getCategoryName(slug)} icon={<Icon />} image={image} />
+                        <CategoryCard title={nameOf(slug, title)} icon={<Icon />} image={image} />
                     </Link>
                 ))}
             </div>

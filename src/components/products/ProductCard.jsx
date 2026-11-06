@@ -1,10 +1,9 @@
 import { Link } from "react-router"
 import { ShoppingCart } from "lucide-react"
 import { formatPrice, formatUnit } from "../../utils/format"
-import { getCategoryName } from "../../utils/catalog"
 
 export default function ProductCard({ product, onAddToCart }) {
-    const { id, image, categoria, nombre, precio, unidad, stock } = product
+    const { id, image, categoriaNombre, nombre, precio, unidad, stock } = product
     const hayStock = stock > 0
 
     return (
@@ -22,7 +21,7 @@ export default function ProductCard({ product, onAddToCart }) {
 
                 {/* Información */}
                 <div className="mt-3 flex flex-1 flex-col gap-1">
-                    <p className="text-xs text-gray-500">{getCategoryName(categoria)}</p>
+                    <p className="text-xs text-gray-500">{categoriaNombre}</p>
 
                     {/* group-hover: el nombre cambia de color al pasar el mouse por toda la zona con enlace */}
                     <h3 className="line-clamp-2 min-h-10 text-sm font-semibold text-secondary transition-colors group-hover:text-primary">

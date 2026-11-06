@@ -11,6 +11,7 @@ import ProductDetail from "./pages/ProductDetail"
 import Cart from "./pages/Cart"
 import Login from "./pages/Login"
 import NotFound from "./pages/NotFound"
+import PageLoader from "./components/ui/PageLoader"
 
 // Los paneles de admin y vendedor se cargan bajo demanda (code splitting):
 // un cliente nunca descarga su código, y la tienda pública carga más rápido.
@@ -21,20 +22,12 @@ const AdminUsers = lazy(() => import("./pages/admin/Users"))
 const SellerLayout = lazy(() => import("./components/layout/SellerLayout"))
 const SellerOrders = lazy(() => import("./pages/seller/Orders"))
 
-// Se muestra mientras se descarga el código de un panel
-function PageLoader() {
-    return (
-        <p role="status" className="p-10 text-center text-sm text-gray-500">
-            Cargando...
-        </p>
-    )
-}
-
 function App() {
     return (
         <>
             <ScrollToTop />
 
+            {/* PageLoader se muestra mientras se descarga el código de un panel */}
             <Suspense fallback={<PageLoader />}>
                 <Routes>
                     {/* Paginas fuera del layout */}

@@ -1,15 +1,28 @@
 import { useState } from "react"
 import { Link, useParams, useNavigate } from "react-router"
 import { ChevronRight, Minus, Plus, ShoppingCart, Truck, Store } from "lucide-react"
-import { products } from "../mocks/products"
 import ProductCard from "../components/products/ProductCard"
+import PageLoader from "../components/ui/PageLoader"
+import ErrorMessage from "../components/ui/ErrorMessage"
 import SectionTitle from "../components/ui/SectionTitle"
 import useCart from "../hooks/useCart"
+import useCatalog from "../hooks/useCatalog"
 import { formatPrice, formatUnit } from "../utils/format"
-import { getCategoryName, getProductById } from "../utils/catalog"
 
 export default function ProductDetail() {
     const { id } = useParams() // el :id de /productos/:id
+    const { getProductById, loading, error, retry } = useCatalog()
+
+    // El detalle sale del catálogo que ya trajo CatalogProvider (GET /api/productos)
+    if (loading) return <PageLoader text="Cargando producto..." />
+    if (error) {
+        return (
+            <section className="px-6 py-16 md:px-10 xl:px-20">
+                <ErrorMessage onRetry={retry}>{error}</ErrorMessage>
+            </section>
+        )
+    }
+
     const product = getProductById(id)
 
     // Si el id no existe
@@ -37,12 +50,13 @@ export default function ProductDetail() {
 function ProductDetailView({ product }) {
     const navigate = useNavigate()
     const { addToCart, cartItems } = useCart()
+    const { products } = useCatalog()
 
     const [quantity, setQuantity] = useState(1)
     const [added, setAdded] = useState(false) // true después de agregar al carrito
 
     const inStock = product.stock > 0
-    const categoryName = getCategoryName(product.categoria)
+    const categoryName = product.categoriaNombre
 
     // La cantidad nunca baja de 1 ni pasa del stock
     const decrease = () => setQuantity((q) => Math.max(1, q - 1))

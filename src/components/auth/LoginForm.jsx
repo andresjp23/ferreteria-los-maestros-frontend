@@ -2,7 +2,6 @@ import { useState } from "react"
 import { Link } from "react-router"
 import { ArrowLeft, ArrowRight, Mail, Lock, Eye, EyeOff } from "lucide-react"
 import useAuth from "../../hooks/useAuth"
-import { users } from "../../mocks/users"
 import Logo from "../../assets/brand/logo.webp"
 
 // Campo del formulario: etiqueta + caja con ícono + input.
@@ -30,8 +29,15 @@ function AuthField({ id, label, icon: Icon, action, ...inputProps }) {
     )
 }
 
+// Cuentas de prueba que crea el backend al iniciar (ver README del backend). Se retira en producción.
+const demoAccounts = [
+    { rol: "admin", email: "admin@losmaestros.cl", password: "admin123" },
+    { rol: "vendedor", email: "vendedor@losmaestros.cl", password: "vendedor123" },
+    { rol: "cliente", email: "cliente@losmaestros.cl", password: "cliente123" },
+]
+
 export default function LoginForm() {
-    const { login } = useAuth()
+    const { login, sessionMessage, clearSessionMessage } = useAuth()
 
     // Lo que escribe el usuario
     const [email, setEmail] = useState("")
@@ -46,6 +52,7 @@ export default function LoginForm() {
     const handleSubmit = async (event) => {
         event.preventDefault() // evita que el navegador recargue la página
         setError("")
+        clearSessionMessage()
 
         // Validación mínima: ambos campos con contenido
         if (!email.trim() || !password) {
@@ -55,7 +62,7 @@ export default function LoginForm() {
 
         setSubmitting(true)
 
-        // await espera la respuesta de login (hoy instantánea; en la fase 2 vendrá del backend)
+        // await espera la respuesta del backend (POST /api/auth/login)
         const result = await login(email, password)
 
         // Si falló, muestra el error y reactiva el botón.
@@ -99,6 +106,16 @@ export default function LoginForm() {
                         Accede a tu cuenta de Ferretería Los Maestros.
                     </p>
                 </div>
+
+                {/* Aviso cuando se llega aquí porque la sesión venció o el token no era válido */}
+                {sessionMessage && (
+                    <p
+                        role="alert"
+                        className="mb-5 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800"
+                    >
+                        {sessionMessage}
+                    </p>
+                )}
 
                 <form onSubmit={handleSubmit} className="space-y-5">
                     <AuthField
@@ -160,8 +177,8 @@ export default function LoginForm() {
                     </summary>
 
                     <ul className="mt-3 space-y-2 text-xs text-slate-600">
-                        {users.map((u) => (
-                            <li key={u.id} className="wrap-break-word">
+                        {demoAccounts.map((u) => (
+                            <li key={u.email} className="wrap-break-word">
                                 <span className="font-semibold capitalize text-secondary">{u.rol}:</span> {u.email} /{" "}
                                 {u.password}
                             </li>

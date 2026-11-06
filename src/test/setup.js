@@ -6,4 +6,5 @@ afterEach(() => {
     cleanup()
     localStorage.clear()
     vi.useRealTimers()
+    vi.unstubAllGlobals() // quita el fetch simulado con mockApi
 })

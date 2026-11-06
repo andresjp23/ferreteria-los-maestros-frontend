@@ -5,8 +5,10 @@ import Banner from "../components/products/Banner"
 import ProductCard from "../components/products/ProductCard"
 import FiltersSidebar from "../components/products/FiltersSidebar"
 import NavSearchBar from "../components/ui/NavSearchBar"
+import PageLoader from "../components/ui/PageLoader"
+import ErrorMessage from "../components/ui/ErrorMessage"
 import useCart from "../hooks/useCart"
-import { products } from "../mocks/products"
+import useCatalog from "../hooks/useCatalog"
 import { matchesAllWords } from "../utils/format"
 
 // Cuántos productos se muestran al inicio y cuántos más con cada "Mostrar más"
@@ -33,8 +35,9 @@ export default function Products() {
     const [showMore, setShowMore] = useState({ key: filtersKey, count: PAGE_SIZE })
     const visibleCount = showMore.key === filtersKey ? showMore.count : PAGE_SIZE
 
-    // Trae del contexto la función para agregar al carrito
+    // Trae del contexto la función para agregar al carrito y los productos del backend
     const { addToCart } = useCart()
+    const { products, loading, error, retry } = useCatalog()
 
     // Copia los parámetros actuales, aplica el cambio y reemplaza la URL
     // (replace: cambiar un filtro no agrega una entrada al historial por cada clic)
@@ -146,7 +149,12 @@ export default function Products() {
                             </div>
                         </div>
 
-                        {total === 0 ? (
+                        {loading ? (
+                            <PageLoader text="Cargando productos..." />
+                        ) : error ? (
+                            // El backend no respondió o respondió con error
+                            <ErrorMessage onRetry={retry}>{error}</ErrorMessage>
+                        ) : total === 0 ? (
                             // Ningún producto cumple los filtros
                             <div className="rounded-xl border border-gray-200 bg-white py-12 text-center">
                                 <p className="font-semibold text-secondary">No encontramos productos</p>

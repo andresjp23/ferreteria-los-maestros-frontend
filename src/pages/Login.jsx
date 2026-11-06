@@ -3,10 +3,14 @@ import useAuth from "../hooks/useAuth"
 import { homeByRole } from "../utils/roles"
 import LoginBrandPanel from "../components/auth/LoginBrandPanel"
 import LoginForm from "../components/auth/LoginForm"
+import PageLoader from "../components/ui/PageLoader"
 
 export default function Login() {
-    const { user } = useAuth()
+    const { user, loading } = useAuth()
     const location = useLocation()
+
+    // Al recargar con un token guardado, se espera a que el backend confirme la sesión
+    if (loading) return <PageLoader />
 
     // Si ya hay una sesión iniciada, no se muestra el login.
     // Vuelve a la página que se intentaba abrir (si ProtectedRoute la guardó) o a la de su rol.
