@@ -4,6 +4,8 @@ Frontend de una tienda online para el caso académico de Ferretería Los Maestro
 
 > **Alcance:** esta entrega funciona con datos mock y estado local del navegador. No incluye backend, API, base de datos ni persistencia de operaciones comerciales.
 
+El backend (Spring Boot + MySQL) vive en su propio repositorio: [ferreteria-los-maestros-backend](https://github.com/andresjp23/ferreteria-los-maestros-backend).
+
 ## Stack
 
 - React 19 y React Router
@@ -22,7 +24,6 @@ Frontend de una tienda online para el caso académico de Ferretería Los Maestro
 Desde la raíz del repositorio:
 
 ```bash
-cd frontend
 npm install
 npm run dev
 ```
