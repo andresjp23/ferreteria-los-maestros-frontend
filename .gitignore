@@ -30,4 +30,6 @@ COBERTURA_TESTING_EP2.md
 data/
 /docs/*
 !/docs/documento-ferreteria-los-maestros.md
+!/docs/manual-usuario.md
+!/docs/capturas-manual/
 originals/
