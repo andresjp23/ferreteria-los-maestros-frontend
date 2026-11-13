@@ -2,11 +2,7 @@
 
 ## Documento de funcionalidades y apoyo para la defensa técnica (EP3)
 
-Este documento explica cómo está construido el frontend y dónde está cada parte en el código, organizado según los indicadores de la defensa técnica. Complementa a:
-
-- el [manual de usuario](manual-usuario.md): cómo se usa la tienda, paso a paso y con capturas;
-- el [documento de integración](https://github.com/andresjp23/ferreteria-los-maestros-backend/blob/main/docs/documento-integracion.md): arquitectura completa, endpoints y pruebas de integración P01–P23;
-- el [documento de defensa del backend](https://github.com/andresjp23/ferreteria-los-maestros-backend/blob/main/docs/documento-defensa-backend.md): entidades, servicios, Swagger y JWT del lado del servidor.
+Este documento explica cómo está construido el frontend y dónde está cada parte en el código, organizado según los indicadores de la defensa técnica. Complementa al [documento de defensa del backend](https://github.com/andresjp23/ferreteria-los-maestros-backend/blob/main/docs/documento-defensa-backend.md): entidades, servicios, Swagger y JWT del lado del servidor.
 
 Las referencias `archivo:línea` apuntan a `src/` y sirven para abrir el código durante la defensa.
 
@@ -198,7 +194,7 @@ npm test
 | `pages/seller/seller-orders.test.jsx`, `components/seller/OrdersTable.test.jsx` | Pedidos y cambio de estado del vendedor |
 | `utils/*Validation*.test.js` | Reglas de validación de productos y usuarios |
 
-En cada push a `main`, GitHub Actions corre formato, lint, tests y build (`.github/workflows/frontend.yml`). Las pruebas contra el backend real están documentadas en el documento de integración (P01–P23).
+En cada push a `main`, GitHub Actions corre formato, lint, tests y build (`.github/workflows/frontend.yml`).
 
 ---
 
@@ -257,7 +253,7 @@ Los indicadores de backend (IE3.1.2 e IE3.2.3) están en el [documento de defens
 | Logout | Borra el token y el usuario | `AuthProvider.jsx:40` |
 
 **Demostración:**
-1. Iniciar sesión como admin, ir a `/admin` y recargar con F5: sigue en el panel. En DevTools → Network se ve la llamada a `/auth/me` (prueba P23).
+1. Iniciar sesión como admin, ir a `/admin` y recargar con F5: sigue en el panel. En DevTools → Network se ve la llamada a `/auth/me`.
 2. Expiración: levantar el backend con `JWT_EXPIRATION_MINUTES=1`, iniciar sesión y esperar un minuto: la app vuelve al login con "Tu sesión expiró".
 
 **Preguntas probables:**
@@ -278,7 +274,7 @@ Los indicadores de backend (IE3.1.2 e IE3.2.3) están en el [documento de defens
 | Un admin no puede eliminar su propia cuenta | `components/admin/users/UsersTable.jsx:50` |
 | "Enviar" solo si el pedido está En preparación; "Estado" deshabilitado si está Entregado | `components/seller/OrdersTable.jsx:90` y `:100` |
 
-**Demostración:** con sesión de cliente, escribir `/admin` en la barra de direcciones: vuelve al inicio. Luego, en Swagger, llamar a `GET /api/usuarios` con el token del cliente: **403** (prueba P09).
+**Demostración:** con sesión de cliente, escribir `/admin` en la barra de direcciones: vuelve al inicio. Luego, en Swagger, llamar a `GET /api/usuarios` con el token del cliente: **403**.
 
 **Por qué el backend también valida:** el frontend corre en el navegador del usuario, que puede modificarlo, saltarse una pantalla o llamar a la API directamente con Swagger, Postman o curl. Ocultar un botón mejora la experiencia, pero no protege nada. La seguridad real es que cada endpoint revisa el token y el rol en el servidor (`SecurityConfig` en el backend).
 
@@ -286,7 +282,7 @@ Los indicadores de backend (IE3.1.2 e IE3.2.3) están en el [documento de defens
 
 ## 10. Recorrido sugerido para la demostración
 
-Con MySQL, el backend y el frontend levantados (ver el [manual](manual-usuario.md#2-instalación-y-arranque)):
+Con MySQL, el backend y el frontend levantados (ver la [instalación en el README](../README.md#instalación-y-desarrollo)):
 
 1. **Visitante:** catálogo, filtro por categoría (se ve en la URL), detalle y agregar al carrito.
 2. **Checkout sin sesión:** "Continuar con la compra" lleva al login y, después de entrar como cliente, vuelve al carrito.

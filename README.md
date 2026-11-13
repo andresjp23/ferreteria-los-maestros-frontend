@@ -117,6 +117,4 @@ npm test
 
 ## Documentación
 
-- [Manual de usuario](docs/manual-usuario.md): instalación y uso paso a paso por rol (visitante, cliente, vendedor y administrador), con capturas.
-- [Documento de integración frontend–backend](https://github.com/andresjp23/ferreteria-los-maestros-backend/blob/main/docs/documento-integracion.md) (en el repositorio del backend): arquitectura, flujo REST, endpoints, JWT, configuración y pruebas de integración.
 - [Documento de funcionalidades y apoyo para la defensa técnica](docs/documento-ferreteria-los-maestros.md): estructura, módulos y, por cada indicador de la defensa, dónde está cada parte en el código.
