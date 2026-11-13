@@ -1,6 +1,8 @@
 # Ferretería Los Maestros
 ## Documento de funcionalidades y apoyo para la defensa técnica
 
+> **Documento histórico de la EP2.** Describe la versión anterior del frontend, con datos simulados (mocks) y sin backend. La versión actual (EP3) consume la API REST del backend con JWT. Para la EP3, ver el [manual de usuario](manual-usuario.md) y el [documento de integración](https://github.com/andresjp23/ferreteria-los-maestros-backend/blob/main/docs/documento-integracion.md).
+
 ## 1. Propósito y alcance
 
 Este frontend corresponde al caso de la Ferretería Los Maestros, negocio familiar ubicado en La Serena. El problema de negocio es la dificultad para consultar stock actualizado, gestionar pedidos y mantener información de compras usando procesos manuales.

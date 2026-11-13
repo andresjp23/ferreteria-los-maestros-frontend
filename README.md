@@ -21,14 +21,17 @@ El backend (Spring Boot + MySQL + JWT) vive en su propio repositorio: [ferreteri
 
 ## Instalación y desarrollo
 
-Desde la raíz del repositorio:
+1. **Levantar primero el backend** (MySQL en Docker + Spring Boot en el puerto 8080), siguiendo el [README del backend](https://github.com/andresjp23/ferreteria-los-maestros-backend#puesta-en-marcha).
+2. Desde la raíz de este repositorio:
 
 ```bash
 npm install
 npm run dev
 ```
 
-Vite mostrará la URL local en la terminal. Para detener el servidor, usa `Ctrl+C`.
+3. Abrir <http://localhost:5173>. Para detener el servidor, usa `Ctrl+C`.
+
+La URL de la API viene en `.env.development` (`VITE_API_URL=http://localhost:8080/api`). Si el backend corre en otro puerto, copia `.env.example` a `.env.development.local` y ajústala. Si el backend no está corriendo, la tienda muestra el aviso "No se pudo conectar con el servidor".
 
 ## Comandos
 
@@ -104,8 +107,16 @@ Las crea el backend al iniciar por primera vez (datos de demostración). No debe
 
 Los datos vienen de la API (`src/services/`). Las imágenes de los productos están en `public/products/` y el backend guarda su ruta.
 
-## Pruebas y documentación
+## Tests
 
-- [Documento de funcionalidad y apoyo para la defensa técnica](docs/documento-ferreteria-los-maestros.md)
+```bash
+npm test
+```
 
-Los tests simulan el backend reemplazando `fetch` (`src/test/mockApi.js`), así se prueba el flujo real de cada pantalla sin levantar el servidor.
+40 tests con Vitest y Testing Library. Simulan el backend reemplazando `fetch` (`src/test/mockApi.js`), así se prueba el flujo real de cada pantalla (login, catálogo, checkout, paneles de admin y vendedor) sin levantar el servidor. En cada push a `main`, GitHub Actions revisa formato, lint, tests y build (`.github/workflows/frontend.yml`).
+
+## Documentación
+
+- [Manual de usuario](docs/manual-usuario.md): instalación y uso paso a paso por rol (visitante, cliente, vendedor y administrador), con capturas.
+- [Documento de integración frontend–backend](https://github.com/andresjp23/ferreteria-los-maestros-backend/blob/main/docs/documento-integracion.md) (en el repositorio del backend): arquitectura, flujo REST, endpoints, JWT, configuración y pruebas de integración.
+- [Documento de la EP2](docs/documento-ferreteria-los-maestros.md): versión anterior, con datos simulados y sin backend. Se conserva como historial.
